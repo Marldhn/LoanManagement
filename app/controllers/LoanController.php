@@ -3,6 +3,7 @@
 require_once "../app/models/Loan.php";
 require_once "../app/models/Borrower.php";
 require_once "../app/models/Account.php";
+require_once "../app/models/Guarantor.php";
 
 session_start();
 
@@ -34,14 +35,16 @@ class LoanController {
     // =========================
     public function create() {
 
-        $borrowerModel = new Borrower();
-        $accountModel = new Account();
+    $borrowerModel = new Borrower();
+    $accountModel = new Account();
+    $guarantorModel = new Guarantor();
 
-        $borrowers = $borrowerModel->getAll();
-        $accounts = $accountModel->getAll();
+    $borrowers = $borrowerModel->getAll();
+    $accounts = $accountModel->getAll();
+    $guarantors = $guarantorModel->getAll();
 
-        require "../app/views/loans/create.php";
-    }
+    require "../app/views/loans/create.php";
+}
 
     // =========================
     // STORE LOAN
@@ -49,6 +52,7 @@ class LoanController {
     public function store() {
 
         $borrower_id = $_POST['borrower_id'];
+            $guarantor_id = $_POST['guarantor_id'] ?? null;
         $amount = $_POST['amount'];
         $interest = $_POST['interest'];
 
@@ -58,6 +62,8 @@ class LoanController {
         // save loan
         $this->loan->create([
             "borrower_id" => $borrower_id,
+                    "guarantor_id" => $guarantor_id ?: null,
+
             "amount" => $amount,
             "interest" => $interest,
             "total" => $total

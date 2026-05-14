@@ -54,6 +54,9 @@ body {
         <a href="/LoanManagement/public/index.php?url=loan/index">Loans</a>
         <a href="/LoanManagement/public/index.php?url=account/create">Add Account</a>
         <a href="/LoanManagement/public/index.php?url=loan/create">Create Loan</a>
+        <a href="/LoanManagement/public/index.php?url=borrower/create">Add Borrower</a>
+        <a href="/LoanManagement/public/index.php?url=guarantor/index">Guarantors</a>
+        <a href="/LoanManagement/public/index.php?url=guarantor/create">Add Guarantor</a>
     </div>
 
     

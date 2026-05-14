@@ -23,6 +23,24 @@
 
     </select>
 
+    <label>Guarantor (Optional)</label><br>
+
+<select name="guarantor_id">
+
+    <option value="">-- No Guarantor --</option>
+
+    <?php foreach ($guarantors as $g): ?>
+
+        <option value="<?= $g['id'] ?>">
+            <?= $g['fullname'] ?>
+        </option>
+
+    <?php endforeach; ?>
+
+</select>
+
+<br><br>
+
     <br><br>
 
     <!-- LOAN AMOUNT -->
