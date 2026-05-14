@@ -39,7 +39,13 @@
 
 </select>
 
+<label>Date Borrowed</label><br>
+<input type="date" name="borrowed_date" required>
+
 <br><br>
+
+<label>Loan Term (Days)</label><br>
+<input type="number" name="days" required>
 
     <br><br>
 

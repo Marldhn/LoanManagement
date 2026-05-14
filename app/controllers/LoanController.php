@@ -13,6 +13,7 @@ if (!isset($_SESSION['user'])) {
     header("Location: /LoanManagement/public/index.php?url=auth/login");
     exit;
 }
+
 class LoanController {
 
     private $loan;
@@ -26,13 +27,10 @@ class LoanController {
     // =========================
     public function index() {
 
-    $loans = $this->loan->getAll();
+        $loans = $this->loan->getAll();
 
-    $borrowers = (new Borrower())->getAll();
-    $accounts = (new Account())->getAll();
-
-    require "../app/views/loans/index.php";
-}
+        require "../app/views/loans/index.php";
+    }
 
     // =========================
     // CREATE VIEW
@@ -56,6 +54,12 @@ class LoanController {
 
         $amount = $_POST['amount'];
         $interest = $_POST['interest'];
+        $days = $_POST['days'];
+        $borrowed_date = $_POST['borrowed_date'];
+$days = $_POST['days'];
+
+// AUTO COMPUTE DUE DATE
+$due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
 
         $total = $amount + ($amount * ($interest / 100));
 
@@ -63,6 +67,8 @@ class LoanController {
         $this->loan->create([
             "borrower_id" => $borrower_id,
             "guarantor_id" => $guarantor_id ?: null,
+            "borrowed_date" => $borrowed_date,
+            "due_date" => $due_date,
             "amount" => $amount,
             "interest" => $interest,
             "total" => $total
@@ -86,14 +92,12 @@ class LoanController {
 
             $deduct = $account_amounts[$index];
 
-            // save pivot
             $accountModel->saveLoanAccount(
                 $loan_id,
                 $account_id,
                 $deduct
             );
 
-            // deduct balance
             $accountModel->deductBalance(
                 $account_id,
                 $deduct
@@ -132,6 +136,8 @@ class LoanController {
             "id" => $_POST['id'],
             "borrower_id" => $_POST['borrower_id'],
             "guarantor_id" => $_POST['guarantor_id'] ?? null,
+            "borrowed_date" => $_POST['borrowed_date'],
+            "due_date" => $_POST['due_date'],
             "amount" => $amount,
             "interest" => $interest,
             "total" => $total
@@ -151,6 +157,4 @@ class LoanController {
         header("Location: /LoanManagement/public/index.php?url=loan/index");
         exit;
     }
-
-    
 }

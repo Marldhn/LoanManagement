@@ -51,23 +51,32 @@ class Loan extends Model {
     // =========================
     // CREATE LOAN
     // =========================
-    public function create($data) {
+   public function create($data) {
 
-        $stmt = $this->conn->prepare("
-            INSERT INTO loans
-            (borrower_id, guarantor_id, amount, interest, total)
-            VALUES (?, ?, ?, ?, ?)
-        ");
+    $stmt = $this->conn->prepare("
+        INSERT INTO loans
+        (
+            borrower_id,
+            guarantor_id,
+            borrowed_date,
+            due_date,
+            amount,
+            interest,
+            total
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
 
-        $stmt->execute([
-            $data['borrower_id'],
-            $data['guarantor_id'],
-            $data['amount'],
-            $data['interest'],
-            $data['total']
-        ]);
-    }
-
+    $stmt->execute([
+        $data['borrower_id'],
+        $data['guarantor_id'],
+        $data['borrowed_date'],
+        $data['due_date'],
+        $data['amount'],
+        $data['interest'],
+        $data['total']
+    ]);
+}
     // =========================
     // GET SINGLE LOAN
     // =========================
@@ -125,4 +134,8 @@ class Loan extends Model {
     public function getLastId() {
         return $this->conn->lastInsertId();
     }
+
+
+
+    
 }

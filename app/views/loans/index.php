@@ -15,7 +15,10 @@
         <th>Account</th>
         <th>Amount</th>
         <th>Interest</th>
+        <th>Date Borrowed</th>
+<th>Due Date</th>
         <th>Total</th>
+        <th>Action</th>
     </tr>
 
     <?php if (!empty($loans)): ?>
@@ -29,6 +32,9 @@
             <td><?= $loan['account_names'] ?></td>
 
             <td>₱<?= number_format($loan['amount'], 2) ?></td>
+
+            <td><?= $loan['borrowed_date'] ?></td>
+<td><?= $loan['due_date'] ?></td>
 
             <td><?= $loan['interest'] ?>%</td>
 
