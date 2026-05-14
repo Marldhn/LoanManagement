@@ -38,4 +38,37 @@ class BorrowerController {
         header("Location: /LoanManagement/public/index.php?url=borrower/index");
         exit;
     }
+
+
+    public function edit($id) {
+
+    $borrower = $this->borrower->getById($id);
+
+    require "../app/views/borrowers/edit.php";
+}
+
+
+
+public function update() {
+
+    $this->borrower->update([
+        "id" => $_POST['id'],
+        "fullname" => $_POST['fullname'],
+        "contact" => $_POST['contact'],
+        "address" => $_POST['address']
+    ]);
+
+    header("Location: /LoanManagement/public/index.php?url=borrower/index");
+    exit;
+}
+
+
+
+public function delete($id) {
+
+    $this->borrower->delete($id);
+
+    header("Location: /LoanManagement/public/index.php?url=borrower/index");
+    exit;
+}
 }

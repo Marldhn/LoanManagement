@@ -91,4 +91,43 @@ class Account extends Model {
         ");
         $stmt2->execute([$amount, $to_id]);
     }
+
+
+       public function getById($id) {
+
+    $stmt = $this->conn->prepare("
+        SELECT * FROM accounts WHERE id = ?
+    ");
+
+    $stmt->execute([$id]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
+public function update($data) {
+
+    $stmt = $this->conn->prepare("
+        UPDATE accounts
+        SET account_name = ?, balance = ?, description = ?
+        WHERE id = ?
+    ");
+
+    return $stmt->execute([
+        $data['account_name'],
+        $data['balance'],
+        $data['description'],
+        $data['id']
+    ]);
+}
+
+
+public function delete($id) {
+
+    $stmt = $this->conn->prepare("
+        DELETE FROM accounts WHERE id = ?
+    ");
+
+    return $stmt->execute([$id]);
+}
 }

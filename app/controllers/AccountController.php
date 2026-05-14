@@ -18,7 +18,7 @@ class AccountController {
     }
 
     // ----------------------------
-    // ACCOUNT LIST
+    // LIST
     // ----------------------------
     public function index() {
 
@@ -36,7 +36,7 @@ class AccountController {
     }
 
     // ----------------------------
-    // STORE ACCOUNT
+    // STORE
     // ----------------------------
     public function store() {
 
@@ -51,7 +51,44 @@ class AccountController {
     }
 
     // ----------------------------
-    // TRANSFER FORM VIEW
+    // EDIT (FIXED)
+    // ----------------------------
+    public function edit($id) {
+
+        $account = $this->account->getById($id);
+
+        require "../app/views/accounts/edit.php";
+    }
+
+    // ----------------------------
+    // UPDATE (FIXED)
+    // ----------------------------
+    public function update() {
+
+        $this->account->update([
+            "id" => $_POST['id'],
+            "account_name" => $_POST['account_name'],
+            "balance" => $_POST['balance'],
+            "description" => $_POST['description']
+        ]);
+
+        header("Location: /LoanManagement/public/index.php?url=account/index");
+        exit;
+    }
+
+    // ----------------------------
+    // DELETE (FIXED)
+    // ----------------------------
+    public function delete($id) {
+
+        $this->account->delete($id);
+
+        header("Location: /LoanManagement/public/index.php?url=account/index");
+        exit;
+    }
+
+    // ----------------------------
+    // TRANSFER FORM
     // ----------------------------
     public function transferForm() {
 
@@ -65,46 +102,37 @@ class AccountController {
     // ----------------------------
     public function transferStore() {
 
-    $from = $_POST['from_account'] ?? null;
-    $to = $_POST['to_account'] ?? null;
-    $amount = $_POST['amount'] ?? null;
+        $from = $_POST['from_account'] ?? null;
+        $to = $_POST['to_account'] ?? null;
+        $amount = $_POST['amount'] ?? null;
 
-    // VALIDATION
-    if (!$from || !$to || !$amount) {
-        die("Missing transfer data");
-    }
-
-    if ($from == $to) {
-        die("Cannot transfer to same account");
-    }
-
-    // ----------------------------
-    // GET CURRENT BALANCE
-    // ----------------------------
-    $accounts = $this->account->getAll();
-
-    $fromBalance = 0;
-
-    foreach ($accounts as $acc) {
-        if ($acc['id'] == $from) {
-            $fromBalance = $acc['balance'];
-            break;
+        if (!$from || !$to || !$amount) {
+            die("Missing transfer data");
         }
+
+        if ($from == $to) {
+            die("Cannot transfer to same account");
+        }
+
+        // check balance
+        $accounts = $this->account->getAll();
+
+        $fromBalance = 0;
+
+        foreach ($accounts as $acc) {
+            if ($acc['id'] == $from) {
+                $fromBalance = $acc['balance'];
+                break;
+            }
+        }
+
+        if ($amount > $fromBalance) {
+            die("Insufficient balance. Available: " . $fromBalance);
+        }
+
+        $this->account->transfer($from, $to, $amount);
+
+        header("Location: /LoanManagement/public/index.php?url=account/index");
+        exit;
     }
-
-    // ----------------------------
-    // CHECK IF ENOUGH BALANCE
-    // ----------------------------
-    if ($amount > $fromBalance) {
-        die("Insufficient balance. Available: " . $fromBalance);
-    }
-
-    // ----------------------------
-    // DO TRANSFER
-    // ----------------------------
-    $this->account->transfer($from, $to, $amount);
-
-    header("Location: /LoanManagement/public/index.php?url=account/index");
-    exit;
-}
 }
