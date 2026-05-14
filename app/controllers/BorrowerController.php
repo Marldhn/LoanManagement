@@ -71,4 +71,14 @@ public function delete($id) {
     header("Location: /LoanManagement/public/index.php?url=borrower/index");
     exit;
 }
+
+
+public function details($id) {
+
+    $borrower = $this->borrower->getById($id);
+
+    $loans = $this->borrower->getLoans($id);
+
+    require "../app/views/borrowers/details.php";
+}
 }

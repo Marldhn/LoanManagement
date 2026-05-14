@@ -1,17 +1,18 @@
 <?php
 
-require_once "../app/models/Loan.php";
-require_once "../app/models/Borrower.php";
-require_once "../app/models/Account.php";
-require_once "../app/models/Guarantor.php";
+require_once __DIR__ . "/../models/Loan.php";
+require_once __DIR__ . "/../models/Borrower.php";
+require_once __DIR__ . "/../models/Account.php";
+require_once __DIR__ . "/../models/Guarantor.php";
 
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['user'])) {
     header("Location: /LoanManagement/public/index.php?url=auth/login");
     exit;
 }
-
 class LoanController {
 
     private $loan;
@@ -150,4 +151,6 @@ class LoanController {
         header("Location: /LoanManagement/public/index.php?url=loan/index");
         exit;
     }
+
+    
 }

@@ -2,82 +2,132 @@
 
 <h2>Borrowers</h2>
 
-<button onclick="openCreateModal()">
+<button type="button" onclick="openCreateModal()">
     Add Borrower
 </button>
 
 <br><br>
 
-<table border="1" cellpadding="10">
+<table border="1" cellpadding="10" width="100%">
 
     <tr>
         <th>Name</th>
         <th>Contact</th>
         <th>Address</th>
-        <th>Action</th>
+        <th width="250">Action</th>
     </tr>
 
     <?php if (!empty($borrowers)): ?>
+
         <?php foreach ($borrowers as $b): ?>
+
         <tr>
-            <td><?= $b['fullname'] ?></td>
-            <td><?= $b['contact'] ?></td>
-            <td><?= $b['address'] ?></td>
+
+            <td><?= htmlspecialchars($b['fullname']) ?></td>
+
+            <td><?= htmlspecialchars($b['contact']) ?></td>
+
+            <td><?= htmlspecialchars($b['address']) ?></td>
 
             <td>
-                <button 
-    onclick="openEditModal(
-        <?= $b['id'] ?>,
-        '<?= $b['fullname'] ?>',
-        '<?= $b['contact'] ?>',
-        '<?= $b['address'] ?>'
-    )">
-    Edit
-</button>
+
+                <!-- DETAILS -->
+                <a href="/LoanManagement/public/index.php?url=borrower/details/<?= $b['id'] ?>">
+                    Details
+                </a>
+
+                |
+
+                <!-- EDIT -->
+                <button
+                    type="button"
+                    onclick="openEditModal(
+                        '<?= $b['id'] ?>',
+                        '<?= htmlspecialchars($b['fullname'], ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($b['contact'], ENT_QUOTES) ?>',
+                        '<?= htmlspecialchars($b['address'], ENT_QUOTES) ?>'
+                    )">
+
+                    Edit
+                </button>
 
                 |
 
                 <!-- DELETE -->
                 <a href="/LoanManagement/public/index.php?url=borrower/delete/<?= $b['id'] ?>"
-                   onclick="return confirm('Are you sure you want to delete this borrower?')">
+                   onclick="return confirm('Delete this borrower?')">
+
                     Delete
                 </a>
+
             </td>
 
         </tr>
+
         <?php endforeach; ?>
+
     <?php else: ?>
+
         <tr>
-            <td colspan="4">No borrowers found</td>
+            <td colspan="4">
+                No borrowers found
+            </td>
         </tr>
+
     <?php endif; ?>
 
 </table>
 
 
+<!-- ========================= -->
 <!-- EDIT MODAL -->
-<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-background:rgba(0,0,0,0.5);">
+<!-- ========================= -->
 
-    <div style="background:white; width:400px; margin:10% auto; padding:20px; border-radius:8px;">
+<div id="editModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+">
+
+    <div style="
+    background:white;
+    width:400px;
+    margin:8% auto;
+    padding:20px;
+    border-radius:10px;
+    ">
 
         <h3>Edit Borrower</h3>
 
-        <form method="POST" action="/LoanManagement/public/index.php?url=borrower/update">
+        <form method="POST"
+        action="/LoanManagement/public/index.php?url=borrower/update">
 
             <input type="hidden" name="id" id="edit_id">
 
-            <label>Name</label><br>
-            <input type="text" name="fullname" id="edit_name" required><br><br>
+            <label>Full Name</label><br>
+            <input type="text" name="fullname" id="edit_name" required>
+            <br><br>
 
             <label>Contact</label><br>
-            <input type="text" name="contact" id="edit_contact" required><br><br>
+            <input type="text" name="contact" id="edit_contact" required>
+            <br><br>
 
             <label>Address</label><br>
-            <input type="text" name="address" id="edit_address" required><br><br>
+            <input type="text" name="address" id="edit_address" required>
+            <br><br>
 
-            <button type="submit">Update</button>
-            <button type="button" onclick="closeEditModal()">Cancel</button>
+            <button type="submit">
+                Update
+            </button>
+
+            <button type="button" onclick="closeEditModal()">
+                Cancel
+            </button>
 
         </form>
 
@@ -85,27 +135,53 @@ background:rgba(0,0,0,0.5);">
 </div>
 
 
+<!-- ========================= -->
 <!-- CREATE MODAL -->
-<div id="createModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-background:rgba(0,0,0,0.5);">
+<!-- ========================= -->
 
-    <div style="background:white; width:400px; margin:10% auto; padding:20px; border-radius:8px;">
+<div id="createModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+">
+
+    <div style="
+    background:white;
+    width:400px;
+    margin:8% auto;
+    padding:20px;
+    border-radius:10px;
+    ">
 
         <h3>Add Borrower</h3>
 
-        <form method="POST" action="/LoanManagement/public/index.php?url=borrower/store">
+        <form method="POST"
+        action="/LoanManagement/public/index.php?url=borrower/store">
 
-            <label>Name</label><br>
-            <input type="text" name="fullname" required><br><br>
+            <label>Full Name</label><br>
+            <input type="text" name="fullname" required>
+            <br><br>
 
             <label>Contact</label><br>
-            <input type="text" name="contact" required><br><br>
+            <input type="text" name="contact" required>
+            <br><br>
 
             <label>Address</label><br>
-            <input type="text" name="address" required><br><br>
+            <input type="text" name="address" required>
+            <br><br>
 
-            <button type="submit">Save</button>
-            <button type="button" onclick="closeCreateModal()">Cancel</button>
+            <button type="submit">
+                Save
+            </button>
+
+            <button type="button" onclick="closeCreateModal()">
+                Cancel
+            </button>
 
         </form>
 
@@ -137,6 +213,6 @@ function closeCreateModal() {
     document.getElementById('createModal').style.display = 'none';
 }
 
-
 </script>
+
 <?php include __DIR__ . "/../layouts/footer.php"; ?>
