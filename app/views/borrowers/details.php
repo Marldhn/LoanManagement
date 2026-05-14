@@ -35,6 +35,8 @@
         <th>Amount</th>
         <th>Interest</th>
         <th>Total</th>
+        <th>Date of Loan</th>
+
     </tr>
 
     <?php if (!empty($loans)): ?>
@@ -58,6 +60,9 @@
             <td>
                 ₱<?= number_format($loan['total'], 2) ?>
             </td>
+
+
+            <td><?= $loan['borrowed_date'] ?></td>
 
         </tr>
 

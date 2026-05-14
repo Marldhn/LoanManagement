@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: May 14, 2026 at 06:40 AM
+-- Generation Time: May 14, 2026 at 11:35 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,8 +40,9 @@ CREATE TABLE `accounts` (
 
 INSERT INTO `accounts` (`id`, `account_name`, `balance`, `description`) VALUES
 (1, 'Gcash ', '1000', 'NA'),
-(2, 'Maya', '5500', 'qwf'),
-(6, 'BPI', '12312', '123');
+(2, 'Maya', '5499', 'qwf'),
+(6, 'BPI', '12311', '123'),
+(7, 'Maribank', '8998', '20');
 
 -- --------------------------------------------------------
 
@@ -76,7 +77,8 @@ CREATE TABLE `borrowers` (
 --
 
 INSERT INTO `borrowers` (`id`, `fullname`, `contact`, `address`, `created_at`) VALUES
-(1, 'Marldohn Rubinossss', '129047891274', 'fwelnfion', '2026-05-14 02:25:58');
+(1, 'Marldohn Rubinossss', '129047891274', 'fwelnfion', '2026-05-14 02:25:58'),
+(5, 'qwfjibqwhb', 'b', 'uibu', '2026-05-14 20:44:29');
 
 -- --------------------------------------------------------
 
@@ -115,18 +117,21 @@ CREATE TABLE `loans` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `borrower_id` int(11) DEFAULT NULL,
   `account_id` int(11) DEFAULT NULL,
-  `guarantor_id` int(11) DEFAULT NULL
+  `guarantor_id` int(11) DEFAULT NULL,
+  `borrowed_date` date DEFAULT NULL,
+  `due_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `loans`
 --
 
-INSERT INTO `loans` (`id`, `borrower_name`, `amount`, `interest`, `total`, `status`, `created_at`, `borrower_id`, `account_id`, `guarantor_id`) VALUES
-(6, NULL, 10000.00, 100.00, 20000.00, 'active', '2026-05-14 03:12:07', 1, NULL, NULL),
-(7, NULL, 500.00, 100.00, 1000.00, 'active', '2026-05-14 03:56:26', 1, NULL, NULL),
-(11, NULL, 1000.00, 100.00, 2000.00, 'active', '2026-05-14 04:26:36', 1, NULL, NULL),
-(12, NULL, 6000.00, 100.00, 12000.00, 'active', '2026-05-14 04:27:06', 1, NULL, NULL);
+INSERT INTO `loans` (`id`, `borrower_name`, `amount`, `interest`, `total`, `status`, `created_at`, `borrower_id`, `account_id`, `guarantor_id`, `borrowed_date`, `due_date`) VALUES
+(6, NULL, 10000.00, 100.00, 20000.00, 'active', '2026-05-14 03:12:07', 1, NULL, NULL, NULL, NULL),
+(14, NULL, 10000.00, 100.00, 20000.00, 'active', '2026-05-14 17:07:45', 1, NULL, NULL, NULL, NULL),
+(15, NULL, 1.00, 1.00, 1.01, 'active', '2026-05-14 20:29:22', 1, NULL, 1, NULL, NULL),
+(16, NULL, 2.00, 1.00, 2.02, 'active', '2026-05-14 20:29:26', 1, NULL, 1, NULL, NULL),
+(19, NULL, 1000.00, 1.00, 1010.00, 'active', '2026-05-14 20:59:34', 1, NULL, NULL, '2026-05-15', '2026-05-30');
 
 -- --------------------------------------------------------
 
@@ -151,7 +156,13 @@ INSERT INTO `loan_accounts` (`id`, `loan_id`, `account_id`, `amount`, `created_a
 (2, 6, 1, 4000.00, '2026-05-14 03:12:07'),
 (3, 7, 3, 500.00, '2026-05-14 03:56:26'),
 (4, 13, 3, 1000.00, '2026-05-14 04:27:54'),
-(5, 13, 1, 1000.00, '2026-05-14 04:27:55');
+(5, 13, 1, 1000.00, '2026-05-14 04:27:55'),
+(6, 14, 7, 10000.00, '2026-05-14 17:07:45'),
+(7, 16, 7, 1.00, '2026-05-14 20:29:26'),
+(8, 16, 6, 1.00, '2026-05-14 20:29:26'),
+(9, 18, 7, 1.00, '2026-05-14 20:46:28'),
+(10, 18, 2, 1.00, '2026-05-14 20:46:28'),
+(11, 19, 7, 1000.00, '2026-05-14 20:59:34');
 
 -- --------------------------------------------------------
 
@@ -228,7 +239,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `account_transfers`
@@ -240,7 +251,7 @@ ALTER TABLE `account_transfers`
 -- AUTO_INCREMENT for table `borrowers`
 --
 ALTER TABLE `borrowers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `guarantors`
@@ -252,13 +263,13 @@ ALTER TABLE `guarantors`
 -- AUTO_INCREMENT for table `loans`
 --
 ALTER TABLE `loans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `loan_accounts`
 --
 ALTER TABLE `loan_accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `users`

@@ -72,25 +72,24 @@ public function delete($id) {
 public function getLoans($borrower_id) {
 
     $stmt = $this->conn->prepare("
-        SELECT
+        SELECT 
             loans.*,
-
-            GROUP_CONCAT(
-                CONCAT(
-                    accounts.account_name,
-                    ' (₱',
-                    loan_accounts.amount,
-                    ')'
-                )
-                SEPARATOR ', '
+            COALESCE(
+                GROUP_CONCAT(
+                    CONCAT(
+                        accounts.account_name,
+                        ' (₱', loan_accounts.amount, ')'
+                    )
+                    SEPARATOR ', '
+                ),
+                ''
             ) AS account_names
-
         FROM loans
 
-        LEFT JOIN loan_accounts
+        LEFT JOIN loan_accounts 
             ON loans.id = loan_accounts.loan_id
 
-        LEFT JOIN accounts
+        LEFT JOIN accounts 
             ON loan_accounts.account_id = accounts.id
 
         WHERE loans.borrower_id = ?
@@ -104,7 +103,6 @@ public function getLoans($borrower_id) {
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 
 }
