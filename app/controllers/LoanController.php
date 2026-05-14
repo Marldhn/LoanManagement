@@ -1,6 +1,13 @@
 <?php
 require_once "../app/models/Loan.php";
 
+session_start();
+
+if (!isset($_SESSION['user'])) {
+    header("Location: /LoanManagement/public/index.php?url=auth/login");
+    exit;
+}
+
 class LoanController {
 
     private $loan;
