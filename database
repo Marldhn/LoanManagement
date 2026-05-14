@@ -1,69 +1,272 @@
-CREATE TABLE borrowers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fullname VARCHAR(100),
-    contact VARCHAR(20),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3307
+-- Generation Time: May 14, 2026 at 06:40 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
 
-CREATE TABLE accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    account_name VARCHAR(100),
-    balance VARCHAR(100),
-    description VARCHAR(255),
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
-);
+--
+-- Database: `loan_db`
+--
 
+-- --------------------------------------------------------
 
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100),
-    password VARCHAR(255),
-    role VARCHAR(20) DEFAULT 'admin'
-);
+--
+-- Table structure for table `accounts`
+--
 
-CREATE TABLE loans (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    borrower_name VARCHAR(100),
-    amount DECIMAL(10,2),
-    interest DECIMAL(10,2),
-    total DECIMAL(10,2),
-    status VARCHAR(20) DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `accounts` (
+  `id` int(11) NOT NULL,
+  `account_name` varchar(100) DEFAULT NULL,
+  `balance` varchar(100) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE account_transfers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+--
+-- Dumping data for table `accounts`
+--
 
-    from_account_id INT,
-    to_account_id INT,
+INSERT INTO `accounts` (`id`, `account_name`, `balance`, `description`) VALUES
+(1, 'Gcash ', '1000', 'NA'),
+(2, 'Maya', '5500', 'qwf'),
+(6, 'BPI', '12312', '123');
 
-    amount DECIMAL(10,2),
+-- --------------------------------------------------------
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--
+-- Table structure for table `account_transfers`
+--
 
+CREATE TABLE `account_transfers` (
+  `id` int(11) NOT NULL,
+  `from_account_id` int(11) DEFAULT NULL,
+  `to_account_id` int(11) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE loan_accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- --------------------------------------------------------
 
-    loan_id INT,
-    account_id INT,
+--
+-- Table structure for table `borrowers`
+--
 
-    amount DECIMAL(10,2),
+CREATE TABLE `borrowers` (
+  `id` int(11) NOT NULL,
+  `fullname` varchar(100) DEFAULT NULL,
+  `contact` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--
+-- Dumping data for table `borrowers`
+--
 
+INSERT INTO `borrowers` (`id`, `fullname`, `contact`, `address`, `created_at`) VALUES
+(1, 'Marldohn Rubinossss', '129047891274', 'fwelnfion', '2026-05-14 02:25:58');
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `guarantors`
+--
 
-CREATE TABLE guarantors (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fullname VARCHAR(100),
-    contact VARCHAR(20),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `guarantors` (
+  `id` int(11) NOT NULL,
+  `fullname` varchar(100) DEFAULT NULL,
+  `contact` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `guarantors`
+--
+
+INSERT INTO `guarantors` (`id`, `fullname`, `contact`, `address`, `created_at`) VALUES
+(1, 'wqfqwfqwdqwd5466', 'qwfqw', 'fqwf', '2026-05-14 03:55:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `loans`
+--
+
+CREATE TABLE `loans` (
+  `id` int(11) NOT NULL,
+  `borrower_name` varchar(100) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `interest` decimal(10,2) DEFAULT NULL,
+  `total` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `borrower_id` int(11) DEFAULT NULL,
+  `account_id` int(11) DEFAULT NULL,
+  `guarantor_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `loans`
+--
+
+INSERT INTO `loans` (`id`, `borrower_name`, `amount`, `interest`, `total`, `status`, `created_at`, `borrower_id`, `account_id`, `guarantor_id`) VALUES
+(6, NULL, 10000.00, 100.00, 20000.00, 'active', '2026-05-14 03:12:07', 1, NULL, NULL),
+(7, NULL, 500.00, 100.00, 1000.00, 'active', '2026-05-14 03:56:26', 1, NULL, NULL),
+(11, NULL, 1000.00, 100.00, 2000.00, 'active', '2026-05-14 04:26:36', 1, NULL, NULL),
+(12, NULL, 6000.00, 100.00, 12000.00, 'active', '2026-05-14 04:27:06', 1, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `loan_accounts`
+--
+
+CREATE TABLE `loan_accounts` (
+  `id` int(11) NOT NULL,
+  `loan_id` int(11) DEFAULT NULL,
+  `account_id` int(11) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `loan_accounts`
+--
+
+INSERT INTO `loan_accounts` (`id`, `loan_id`, `account_id`, `amount`, `created_at`) VALUES
+(1, 6, 2, 6000.00, '2026-05-14 03:12:07'),
+(2, 6, 1, 4000.00, '2026-05-14 03:12:07'),
+(3, 7, 3, 500.00, '2026-05-14 03:56:26'),
+(4, 13, 3, 1000.00, '2026-05-14 04:27:54'),
+(5, 13, 1, 1000.00, '2026-05-14 04:27:55');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `role` varchar(20) DEFAULT 'admin'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
+(1, 'Admin', 'admin@gmail.com', '0192023a7bbd73250516f069df18b500', 'admin');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `accounts`
+--
+ALTER TABLE `accounts`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `account_transfers`
+--
+ALTER TABLE `account_transfers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `borrowers`
+--
+ALTER TABLE `borrowers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `guarantors`
+--
+ALTER TABLE `guarantors`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `loans`
+--
+ALTER TABLE `loans`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `loan_accounts`
+--
+ALTER TABLE `loan_accounts`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `accounts`
+--
+ALTER TABLE `accounts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `account_transfers`
+--
+ALTER TABLE `account_transfers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `borrowers`
+--
+ALTER TABLE `borrowers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `guarantors`
+--
+ALTER TABLE `guarantors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `loans`
+--
+ALTER TABLE `loans`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `loan_accounts`
+--
+ALTER TABLE `loan_accounts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
