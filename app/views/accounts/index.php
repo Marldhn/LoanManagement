@@ -6,6 +6,10 @@
     Add Account
 </a>
 
+<a href="/LoanManagement/public/index.php?url=account/transferForm">
+    Transfer Funds
+</a>
+
 <br><br>
 
 <table border="1" cellpadding="10">
