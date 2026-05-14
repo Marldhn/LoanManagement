@@ -11,7 +11,7 @@ class LoanController {
 
     public function index() {
         $loans = $this->loan->getAll();
-        require "../app/views/loans/list.php";
+        require "../app/views/loans/index.php";
     }
 
     public function create() {

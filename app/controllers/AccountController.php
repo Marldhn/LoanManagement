@@ -10,8 +10,10 @@ class AccountController {
     }
 
     public function index() {
+
         $accounts = $this->account->getAll();
-        require "../app/views/accounts/list.php";
+
+        require "../app/views/accounts/index.php";
     }
 
     public function create() {
@@ -20,15 +22,13 @@ class AccountController {
 
     public function store() {
 
-        $balance = $_POST['balance'];
-        $description = $_POST['description'];
-
         $this->account->create([
             "account_name" => $_POST['account_name'],
-            "balance" => $balance,
-            "description" => $description
+            "balance" => $_POST['balance'],
+            "description" => $_POST['description']
         ]);
 
-        header("Location: ../account/index");
+        header("Location: /LoanManagement/public/index.php?url=account/index");
+        exit;
     }
 }
