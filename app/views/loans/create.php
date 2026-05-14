@@ -4,20 +4,131 @@
 
 <form method="POST" action="/LoanManagement/public/index.php?url=loan/store">
 
-    <label>Borrower Name</label><br>
-    <input type="text" name="borrower_name" placeholder="Borrower Name" required>
+    <!-- BORROWER -->
+    <label>Borrower</label><br>
+
+    <select name="borrower_id" required>
+
+        <option value="">Select Borrower</option>
+
+        <?php foreach ($borrowers as $borrower): ?>
+
+            <option value="<?= $borrower['id'] ?>">
+
+                <?= $borrower['fullname'] ?>
+
+            </option>
+
+        <?php endforeach; ?>
+
+    </select>
+
     <br><br>
 
-    <label>Amount</label><br>
-    <input type="number" name="amount" placeholder="Amount" required>
+    <!-- LOAN AMOUNT -->
+    <label>Loan Amount</label><br>
+
+    <input type="number" name="amount" required>
+
     <br><br>
 
+    <!-- INTEREST -->
     <label>Interest (%)</label><br>
-    <input type="number" name="interest" placeholder="Interest %" required>
+
+    <input type="number" name="interest" required>
+
     <br><br>
 
-    <button type="submit">Save Loan</button>
+    <!-- FUNDING ACCOUNTS -->
+    <label>Funding Accounts</label>
+
+    <div id="account-wrapper">
+
+        <div class="account-row">
+
+            <select name="account_id[]" required>
+
+                <option value="">Select Account</option>
+
+                <?php foreach ($accounts as $account): ?>
+
+                    <option value="<?= $account['id'] ?>">
+
+                        <?= $account['account_name'] ?>
+
+                        (Balance: ₱<?= number_format($account['balance'], 2) ?>)
+
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+            <input 
+                type="number" 
+                name="account_amount[]" 
+                placeholder="Amount"
+                required
+            >
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <button type="button" onclick="addAccountRow()">
+        Add Account
+    </button>
+
+    <br><br>
+
+    <button type="submit">
+        Save Loan
+    </button>
 
 </form>
+
+<script>
+
+function addAccountRow() {
+
+    let html = `
+
+        <div class="account-row" style="margin-top:10px;">
+
+            <select name="account_id[]" required>
+
+                <option value="">Select Account</option>
+
+                <?php foreach ($accounts as $account): ?>
+
+                    <option value="<?= $account['id'] ?>">
+
+                        <?= $account['account_name'] ?>
+
+                        (Balance: ₱<?= number_format($account['balance'], 2) ?>)
+
+                    </option>
+
+                <?php endforeach; ?>
+
+            </select>
+
+            <input 
+                type="number" 
+                name="account_amount[]" 
+                placeholder="Amount"
+                required
+            >
+
+        </div>
+    `;
+
+    document.getElementById('account-wrapper')
+        .insertAdjacentHTML('beforeend', html);
+}
+
+</script>
 
 <?php include __DIR__ . "/../layouts/footer.php"; ?>

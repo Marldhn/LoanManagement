@@ -12,6 +12,7 @@
 
     <tr>
         <th>Borrower</th>
+        <th>Account</th>
         <th>Amount</th>
         <th>Interest</th>
         <th>Total</th>
@@ -20,18 +21,27 @@
     <?php if (!empty($loans)): ?>
 
         <?php foreach ($loans as $loan): ?>
+
         <tr>
+
             <td><?= $loan['borrower_name'] ?></td>
-            <td><?= $loan['amount'] ?></td>
+
+            <td><?= $loan['account_names'] ?></td>
+
+            <td>₱<?= number_format($loan['amount'], 2) ?></td>
+
             <td><?= $loan['interest'] ?>%</td>
-            <td><?= $loan['total'] ?></td>
+
+            <td>₱<?= number_format($loan['total'], 2) ?></td>
+
         </tr>
+
         <?php endforeach; ?>
 
     <?php else: ?>
 
         <tr>
-            <td colspan="4">No loans found</td>
+            <td colspan="5">No loans found</td>
         </tr>
 
     <?php endif; ?>

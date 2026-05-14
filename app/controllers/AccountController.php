@@ -39,4 +39,5 @@ class AccountController {
         header("Location: /LoanManagement/public/index.php?url=account/index");
         exit;
     }
+
 }
