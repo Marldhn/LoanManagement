@@ -72,31 +72,41 @@ public function delete($id) {
 public function getLoans($borrower_id) {
 
     $stmt = $this->conn->prepare("
-        SELECT 
-            loans.*,
-            COALESCE(
-                GROUP_CONCAT(
-                    CONCAT(
-                        accounts.account_name,
-                        ' (₱', loan_accounts.amount, ')'
-                    )
-                    SEPARATOR ', '
-                ),
-                ''
-            ) AS account_names
-        FROM loans
+      SELECT 
+    loans.*,
 
-        LEFT JOIN loan_accounts 
-            ON loans.id = loan_accounts.loan_id
+    COALESCE(
+        GROUP_CONCAT(
+            CONCAT(
+                accounts.account_name,
+                ' (₱', loan_accounts.amount, ')'
+            )
+            SEPARATOR ', '
+        ),
+        ''
+    ) AS account_names,
 
-        LEFT JOIN accounts 
-            ON loan_accounts.account_id = accounts.id
+    COALESCE(p.total_penalty, 0) AS total_penalty
 
-        WHERE loans.borrower_id = ?
+FROM loans
 
-        GROUP BY loans.id
+LEFT JOIN loan_accounts 
+    ON loans.id = loan_accounts.loan_id
 
-        ORDER BY loans.id DESC
+LEFT JOIN accounts 
+    ON loan_accounts.account_id = accounts.id
+
+LEFT JOIN (
+    SELECT loan_id, SUM(amount) AS total_penalty
+    FROM penalties
+    GROUP BY loan_id
+) p ON loans.id = p.loan_id
+
+WHERE loans.borrower_id = ?
+
+GROUP BY loans.id
+
+ORDER BY loans.id DESC
     ");
 
     $stmt->execute([$borrower_id]);

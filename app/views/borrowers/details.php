@@ -30,41 +30,36 @@
 <table border="1" cellpadding="10" width="100%">
 
     <tr>
-        <th>Loan ID</th>
-        <th>Accounts Used</th>
-        <th>Amount</th>
-        <th>Interest</th>
-        <th>Total</th>
-        <th>Date of Loan</th>
-
-    </tr>
+    <th>Loan ID</th>
+    <th>Accounts Used</th>
+    <th>Amount</th>
+    <th>Interest</th>
+    <th>Total</th>
+    <th>Penalty</th>
+    <th>Date of Loan</th>
+</tr>
 
     <?php if (!empty($loans)): ?>
 
         <?php foreach ($loans as $loan): ?>
 
-        <tr>
+      <tr>
 
-            <td><?= $loan['id'] ?></td>
+    <td><?= $loan['id'] ?></td>
 
-            <td><?= $loan['account_names'] ?></td>
+    <td><?= $loan['account_names'] ?></td>
 
-            <td>
-                ₱<?= number_format($loan['amount'], 2) ?>
-            </td>
+    <td>₱<?= number_format($loan['amount'], 2) ?></td>
 
-            <td>
-                <?= $loan['interest'] ?>%
-            </td>
+    <td><?= $loan['interest'] ?>%</td>
 
-            <td>
-                ₱<?= number_format($loan['total'], 2) ?>
-            </td>
+    <td>₱<?= number_format($loan['total'], 2) ?></td>
 
+    <td>₱<?= number_format($loan['total_penalty'], 2) ?></td>
 
-            <td><?= $loan['borrowed_date'] ?></td>
+    <td><?= $loan['borrowed_date'] ?></td>
 
-        </tr>
+</tr>
 
         <?php endforeach; ?>
 
