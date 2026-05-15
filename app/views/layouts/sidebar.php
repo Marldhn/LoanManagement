@@ -60,11 +60,7 @@ LOAN SYSTEM SIDEBAR (NAMESPACED)
         <a href="/LoanManagement/public/index.php?url=account/index">Accounts</a>
         <a href="/LoanManagement/public/index.php?url=borrower/index">Borrowers</a>
         <a href="/LoanManagement/public/index.php?url=loan/index">Loans</a>
-        <a href="/LoanManagement/public/index.php?url=account/create">Add Account</a>
-        <a href="/LoanManagement/public/index.php?url=loan/create">Create Loan</a>
-        <a href="/LoanManagement/public/index.php?url=borrower/create">Add Borrower</a>
         <a href="/LoanManagement/public/index.php?url=guarantor/index">Guarantors</a>
-        <a href="/LoanManagement/public/index.php?url=guarantor/create">Add Guarantor</a>
     </div>
 
-    <div class="ls-content">
+<div class="ls-content">

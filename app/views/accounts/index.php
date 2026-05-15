@@ -1,20 +1,110 @@
 <?php include __DIR__ . "/../layouts/sidebar.php"; ?>
 
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+.container {
+    padding: 20px;
+}
+
+/* BUTTONS */
+button, a.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.btn-primary { background: #2d89ef; color: white; }
+.btn-primary:hover { background: #1b5fbf; }
+
+.btn-success { background: #28a745; color: white; }
+.btn-success:hover { background: #1f7a33; }
+
+.btn-danger { background: #dc3545; color: white; }
+.btn-danger:hover { background: #a71d2a; }
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th {
+    background: #f1f1f1;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+/* MODAL BACKDROP */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+/* MODAL BOX */
+.modal-content {
+    background: white;
+    width: 420px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* MODAL SHOW */
+.show {
+    display: flex;
+}
+</style>
+
+<div class="container">
+
 <h2>Account List</h2>
 
-<!-- OPEN CREATE MODAL -->
-<button onclick="openCreateModal()">
-    Add Account
+<!-- ACTION BUTTONS -->
+<button class="btn-primary" onclick="openCreateModal()">+ Add Account</button>
+
+<button class="btn-success" onclick="openTransferModal()">
+    Transfer Funds
 </button>
 
-<a href="/LoanManagement/public/index.php?url=account/transferForm">
-    Transfer Funds
-</a>
-
-<br><br>
-
-<table border="1" cellpadding="10">
-
+<table>
     <tr>
         <th>Account Name</th>
         <th>Balance</th>
@@ -22,130 +112,150 @@
         <th>Action</th>
     </tr>
 
-    <?php if (!empty($accounts)): ?>
-        <?php foreach ($accounts as $account): ?>
-        <tr>
-            <td><?= $account['account_name'] ?></td>
-            <td><?= $account['balance'] ?></td>
-            <td><?= $account['description'] ?></td>
-
-            <td>
-
-                <!-- EDIT -->
-                <button onclick="openEditModal(
+    <?php foreach ($accounts as $account): ?>
+    <tr>
+        <td><?= $account['account_name'] ?></td>
+        <td>₱<?= number_format($account['balance'],2) ?></td>
+        <td><?= $account['description'] ?></td>
+        <td>
+            <button class="btn-primary"
+                onclick="openEditModal(
                     <?= $account['id'] ?>,
                     '<?= addslashes($account['account_name']) ?>',
                     '<?= $account['balance'] ?>',
                     '<?= addslashes($account['description']) ?>'
                 )">
-                    Edit
-                </button>
+                Edit
+            </button>
 
-                |
-
-                <!-- DELETE -->
-                <a href="/LoanManagement/public/index.php?url=account/delete/<?= $account['id'] ?>"
-                   onclick="return confirm('Delete this account?')">
-                    Delete
-                </a>
-
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="4">No accounts found</td>
-        </tr>
-    <?php endif; ?>
+            <a class="btn btn-danger"
+               href="/LoanManagement/public/index.php?url=account/delete/<?= $account['id'] ?>"
+               onclick="return confirm('Delete this account?')">
+               Delete
+            </a>
+        </td>
+    </tr>
+    <?php endforeach; ?>
 
 </table>
 
+</div>
 
+<!-- ===================== CREATE MODAL ===================== -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <h3>Add Account</h3>
 
+        <form method="POST" action="/LoanManagement/public/index.php?url=account/store">
 
+            <label>Account Name</label>
+            <input type="text" name="account_name" required>
 
-<!-- EDIT MODAL -->
-<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-background:rgba(0,0,0,0.5);">
+            <label>Balance</label>
+            <input type="number" name="balance" required>
 
-    <div style="background:white; width:400px; margin:10% auto; padding:20px; border-radius:8px;">
+            <label>Description</label>
+            <input type="text" name="description" required>
 
+            <button class="btn-primary" type="submit">Save</button>
+            <button type="button" onclick="closeCreateModal()">Cancel</button>
+
+        </form>
+    </div>
+</div>
+
+<!-- ===================== EDIT MODAL ===================== -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
         <h3>Edit Account</h3>
 
         <form method="POST" action="/LoanManagement/public/index.php?url=account/update">
 
             <input type="hidden" name="id" id="edit_id">
 
-            <label>Name</label><br>
-            <input type="text" name="account_name" id="edit_name" required><br><br>
+            <label>Name</label>
+            <input type="text" name="account_name" id="edit_name" required>
 
-            <label>Balance</label><br>
-            <input type="number" name="balance" id="edit_balance" required><br><br>
+            <label>Balance</label>
+            <input type="number" name="balance" id="edit_balance" required>
 
-            <label>Description</label><br>
-            <input type="text" name="description" id="edit_description" required><br><br>
+            <label>Description</label>
+            <input type="text" name="description" id="edit_description" required>
 
-            <button type="submit">Update</button>
+            <button class="btn-primary" type="submit">Update</button>
             <button type="button" onclick="closeEditModal()">Cancel</button>
 
         </form>
-
     </div>
 </div>
 
+<!-- ===================== TRANSFER MODAL ===================== -->
+<div id="transferModal" class="modal">
+    <div class="modal-content">
+        <h3>Transfer Funds</h3>
 
-<!-- CREATE MODAL -->
-<div id="createModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-background:rgba(0,0,0,0.5);">
+        <form method="POST" action="/LoanManagement/public/index.php?url=account/transferStore">
 
-    <div style="background:white; width:400px; margin:10% auto; padding:20px; border-radius:8px;">
+            <label>From Account</label>
+            <select name="from_account" required>
+                <option value="">Select</option>
+                <?php foreach ($accounts as $a): ?>
+                    <option value="<?= $a['id'] ?>">
+                        <?= $a['account_name'] ?> (₱<?= number_format($a['balance'],2) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
-        <h3>Add Account</h3>
+            <label>To Account</label>
+            <select name="to_account" required>
+                <option value="">Select</option>
+                <?php foreach ($accounts as $a): ?>
+                    <option value="<?= $a['id'] ?>">
+                        <?= $a['account_name'] ?> (₱<?= number_format($a['balance'],2) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
-        <form method="POST" action="/LoanManagement/public/index.php?url=account/store">
+            <label>Amount</label>
+            <input type="number" name="amount" required>
 
-            <label>Account Name</label><br>
-            <input type="text" name="account_name" required><br><br>
-
-            <label>Balance</label><br>
-            <input type="number" name="balance" required><br><br>
-
-            <label>Description</label><br>
-            <input type="text" name="description" required><br><br>
-
-            <button type="submit">Save</button>
-            <button type="button" onclick="closeCreateModal()">Cancel</button>
+            <button class="btn-success" type="submit">Transfer</button>
+            <button type="button" onclick="closeTransferModal()">Cancel</button>
 
         </form>
-
     </div>
 </div>
-
 
 <script>
 
-function openEditModal(id, name, balance, description) {
-
-    document.getElementById('edit_id').value = id;
-    document.getElementById('edit_name').value = name;
-    document.getElementById('edit_balance').value = balance;
-    document.getElementById('edit_description').value = description;
-
-    document.getElementById('editModal').style.display = 'block';
-}
-
-function closeEditModal() {
-    document.getElementById('editModal').style.display = 'none';
-}
-
 function openCreateModal() {
-    document.getElementById('createModal').style.display = 'block';
+    document.getElementById('createModal').classList.add('show');
 }
 
 function closeCreateModal() {
-    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('createModal').classList.remove('show');
 }
 
+function openEditModal(id, name, balance, desc) {
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_balance').value = balance;
+    document.getElementById('edit_description').value = desc;
+
+    document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+}
+
+function openTransferModal() {
+    document.getElementById('transferModal').classList.add('show');
+}
+
+function closeTransferModal() {
+    document.getElementById('transferModal').classList.remove('show');
+}
 
 </script>
 

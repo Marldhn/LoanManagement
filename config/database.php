@@ -6,6 +6,7 @@ class Database {
     private $db_name = "loan_db";
     private $username = "root";
     private $password = "";
+
     public $conn;
 
     public function connect() {
@@ -15,12 +16,15 @@ class Database {
         try {
 
             $this->conn = new PDO(
-                "mysql:host={$this->host};port=3307;dbname={$this->db_name}",
+                "mysql:host={$this->host};port=3306;dbname={$this->db_name}",
                 $this->username,
                 $this->password
             );
 
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->setAttribute(
+                PDO::ATTR_ERRMODE,
+                PDO::ERRMODE_EXCEPTION
+            );
 
         } catch (PDOException $e) {
 

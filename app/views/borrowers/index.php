@@ -1,134 +1,102 @@
 <?php include __DIR__ . "/../layouts/sidebar.php"; ?>
 
 <style>
-
-.borrower-page {
+body {
     font-family: Arial, sans-serif;
-    color: #2c3e50;
+    background: #f5f6fa;
 }
 
 h2 {
     margin-bottom: 15px;
 }
 
-/* Buttons */
-.btn {
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    text-decoration: none;
-    display: inline-block;
+.container {
+    padding: 20px;
 }
 
-.btn-primary { background: #2c3e50; color: white; }
-.btn-primary:hover { background: #34495e; }
+/* BUTTONS */
+button, a.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 14px;
+}
 
-.btn-warning { background: #f39c12; color: white; }
-.btn-danger { background: #e74c3c; color: white; }
+.btn-primary { background: #2d89ef; color: white; }
+.btn-primary:hover { background: #1b5fbf; }
 
-/* Table */
+.btn-success { background: #28a745; color: white; }
+.btn-success:hover { background: #1f7a33; }
+
+.btn-danger { background: #dc3545; color: white; }
+.btn-danger:hover { background: #a71d2a; }
+
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 15px;
     background: white;
     border-radius: 8px;
     overflow: hidden;
 }
 
-table th {
-    background: #2c3e50;
-    color: white;
+th {
+    background: #f1f1f1;
+}
+
+th, td {
     padding: 12px;
-    text-align: left;
+    border: 1px solid #ddd;
 }
 
-table td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-}
-
-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-}
-
+/* MODAL BACKDROP */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.6);
-    z-index: 9999;
+    justify-content: center;
+    align-items: center;
 }
 
+/* MODAL BOX */
 .modal-content {
-    background: #ffffff;
+    background: white;
     width: 420px;
-    max-width: 90%;
-    margin: 8% auto;
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    font-family: Arial;
 }
 
 .modal-content h3 {
-    margin-top: 0;
-    color: #2c3e50;
+    margin-bottom: 15px;
 }
 
-.modal-content input {
+input, select {
     width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 12px;
+    padding: 8px;
+    margin: 6px 0 12px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 5px;
 }
-
-.modal-content button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.btn-save {
-    background: #2c3e50;
-    color: white;
-}
-
-.btn-cancel {
-    background: #bdc3c7;
-}
-
-
 </style>
 
-<div class="borrower-page">
+<div class="container">
 
 <h2>Borrowers</h2>
 
-<button class="btn btn-primary" onclick="openCreateModal()">
-    Add Borrower
+<button class="btn-primary" onclick="openCreateModal()">
+    + Add Borrower
 </button>
 
-<br><br>
-
 <table>
-
     <tr>
         <th>Name</th>
         <th>Contact</th>
@@ -138,27 +106,26 @@ table tr:hover {
     </tr>
 
     <?php if (!empty($borrowers)): ?>
-
         <?php foreach ($borrowers as $b): ?>
-
         <tr>
             <td><?= htmlspecialchars($b['fullname']) ?></td>
             <td><?= htmlspecialchars($b['contact']) ?></td>
             <td><?= htmlspecialchars($b['address']) ?></td>
-           <td>
-                 ₱<?= number_format(
-                     $b['total_loan'] + $b['total_interest'] + $b['total_penalty'],
-                        2
-                      ) ?>
-            </td>
-            <td>
 
+            <td>
+                ₱<?= number_format(
+                    $b['total_loan'] + $b['total_interest'] + $b['total_penalty'],
+                    2
+                ) ?>
+            </td>
+
+            <td>
                 <a class="btn btn-primary"
                    href="/LoanManagement/public/index.php?url=borrower/details/<?= $b['id'] ?>">
                     Details
                 </a>
 
-                <button class="btn btn-warning"
+                <button class="btn-warning"
                     onclick="openEditModal(
                         '<?= $b['id'] ?>',
                         '<?= htmlspecialchars($b['fullname'], ENT_QUOTES) ?>',
@@ -173,65 +140,49 @@ table tr:hover {
                    onclick="return confirm('Delete this borrower?')">
                     Delete
                 </a>
-
             </td>
         </tr>
-
         <?php endforeach; ?>
-
     <?php else: ?>
         <tr>
-            <td colspan="4">No borrowers found</td>
+            <td colspan="5">No borrowers found</td>
         </tr>
     <?php endif; ?>
-
 </table>
 
 </div>
 
-<!-- ===================== -->
-<!-- EDIT MODAL -->
-<!-- ===================== -->
+<!-- ================= EDIT MODAL ================= -->
 <div id="editModal" class="modal">
-
     <div class="modal-content">
-
         <h3>Edit Borrower</h3>
 
-        <form method="POST"
-        action="/LoanManagement/public/index.php?url=borrower/update">
+        <form method="POST" action="/LoanManagement/public/index.php?url=borrower/update">
 
-            <input type="hidden" name="id" id="edit_id">
+            <input type="hidden" id="edit_id" name="id">
 
             <label>Full Name</label>
-            <input type="text" name="fullname" id="edit_name" required>
+            <input type="text" id="edit_name" name="fullname" required>
 
             <label>Contact</label>
-            <input type="text" name="contact" id="edit_contact" required>
+            <input type="text" id="edit_contact" name="contact" required>
 
             <label>Address</label>
-            <input type="text" name="address" id="edit_address" required>
+            <input type="text" id="edit_address" name="address" required>
 
-            <button type="submit" class="btn-save">Update</button>
-            <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-primary" type="submit">Update</button>
+            <button type="button" onclick="closeEditModal()">Cancel</button>
 
         </form>
-
     </div>
-
 </div>
 
-<!-- ===================== -->
-<!-- CREATE MODAL -->
-<!-- ===================== -->
+<!-- ================= CREATE MODAL ================= -->
 <div id="createModal" class="modal">
-
     <div class="modal-content">
-
         <h3>Add Borrower</h3>
 
-        <form method="POST"
-        action="/LoanManagement/public/index.php?url=borrower/store">
+        <form method="POST" action="/LoanManagement/public/index.php?url=borrower/store">
 
             <label>Full Name</label>
             <input type="text" name="fullname" required>
@@ -242,16 +193,22 @@ table tr:hover {
             <label>Address</label>
             <input type="text" name="address" required>
 
-            <button type="submit" class="btn-save">Save</button>
-            <button type="button" class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
+            <button class="btn-primary" type="submit">Save</button>
+            <button type="button" onclick="closeCreateModal()">Cancel</button>
 
         </form>
-
     </div>
-
 </div>
 
 <script>
+
+function openCreateModal() {
+    document.getElementById('createModal').classList.add('show');
+}
+
+function closeCreateModal() {
+    document.getElementById('createModal').classList.remove('show');
+}
 
 function openEditModal(id, name, contact, address) {
     document.getElementById('edit_id').value = id;
@@ -259,19 +216,11 @@ function openEditModal(id, name, contact, address) {
     document.getElementById('edit_contact').value = contact;
     document.getElementById('edit_address').value = address;
 
-    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('editModal').classList.add('show');
 }
 
 function closeEditModal() {
-    document.getElementById('editModal').style.display = 'none';
-}
-
-function openCreateModal() {
-    document.getElementById('createModal').style.display = 'block';
-}
-
-function closeCreateModal() {
-    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('editModal').classList.remove('show');
 }
 
 </script>
