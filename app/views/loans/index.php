@@ -20,6 +20,7 @@
 <th>Due Date</th>
 <th>Penalty</th>
         <th>Total Due</th>
+        <th>Overall Total</th>
         <th>Action</th>
     </tr>
 
