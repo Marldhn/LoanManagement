@@ -18,7 +18,7 @@ class BorrowerController {
 
     public function index() {
 
-        $borrowers = $this->borrower->getAll();
+       $borrowers = $this->borrower->getAllWithTotals();
 
         require "../app/views/borrowers/index.php";
     }

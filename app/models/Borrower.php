@@ -115,4 +115,37 @@ ORDER BY loans.id DESC
 }
 
 
+public function getAllWithTotals() {
+
+    $stmt = $this->conn->prepare("
+        SELECT 
+            borrowers.*,
+
+            COALESCE(SUM(loans.amount), 0) AS total_loan,
+
+            COALESCE(SUM(loans.amount * (loans.interest / 100)), 0) AS total_interest,
+
+            COALESCE((
+                SELECT SUM(p.amount)
+                FROM penalties p
+                WHERE p.loan_id IN (
+                    SELECT id FROM loans WHERE loans.borrower_id = borrowers.id
+                )
+            ), 0) AS total_penalty
+
+        FROM borrowers
+
+        LEFT JOIN loans 
+            ON loans.borrower_id = borrowers.id
+
+        GROUP BY borrowers.id
+
+        ORDER BY borrowers.id DESC
+    ");
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }

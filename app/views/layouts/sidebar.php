@@ -1,15 +1,14 @@
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-}
+/* =========================
+LOAN SYSTEM SIDEBAR (NAMESPACED)
+========================= */
 
-.wrapper {
+.ls-wrapper {
     display: flex;
 }
 
 /* Sidebar */
-.sidebar {
+.ls-sidebar {
     width: 220px;
     height: 100vh;
     background: #2c3e50;
@@ -20,33 +19,42 @@ body {
     padding-top: 20px;
 }
 
-.sidebar h2 {
+/* Title */
+.ls-sidebar h2 {
     text-align: center;
     margin-bottom: 20px;
 }
 
-.sidebar a {
+/* Links */
+.ls-sidebar a {
     display: block;
     color: white;
     padding: 12px 20px;
     text-decoration: none;
+    transition: 0.2s;
 }
 
-.sidebar a:hover {
+.ls-sidebar a:hover {
     background: #34495e;
 }
 
-/* Content */
-.content {
+/* Content area */
+.ls-content {
     margin-left: 220px;
     padding: 20px;
     width: 100%;
 }
+
+/* Optional selection fix */
+.ls-sidebar ::selection {
+    background: #34495e;
+    color: white;
+}
 </style>
 
-<div class="wrapper">
+<div class="ls-wrapper">
 
-    <div class="sidebar">
+    <div class="ls-sidebar">
         <h2>Loan System</h2>
 
         <a href="/LoanManagement/public/index.php?url=account/index">Accounts</a>
@@ -59,6 +67,4 @@ body {
         <a href="/LoanManagement/public/index.php?url=guarantor/create">Add Guarantor</a>
     </div>
 
-    
-
-    <div class="content">
+    <div class="ls-content">

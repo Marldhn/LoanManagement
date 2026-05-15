@@ -1,0 +1,61 @@
+/* =========================
+SIDEBAR ONLY
+========================= */
+
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: #2c3e50;
+    color: white;
+    top: 0;
+    left: 0;
+    padding-top: 20px;
+    overflow-y: auto;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    transition: 0.2s ease;
+    font-size: 14px;
+}
+
+.sidebar a:hover {
+    background: #34495e;
+    padding-left: 25px;
+}
+
+/* Active link (optional for later use) */
+.sidebar a.active {
+    background: #1abc9c;
+    color: white;
+}
+
+/* Prevent weird selection inside sidebar only */
+.sidebar {
+    user-select: none;
+}
+
+.sidebar ::selection {
+    background: #1abc9c;
+    color: white;
+}
+
+
+.content {
+    margin-left: 220px; /* same width as sidebar */
+    padding: 20px;
+}
