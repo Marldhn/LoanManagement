@@ -4,6 +4,7 @@ require_once __DIR__ . "/../models/Loan.php";
 require_once __DIR__ . "/../models/Borrower.php";
 require_once __DIR__ . "/../models/Account.php";
 require_once __DIR__ . "/../models/Guarantor.php";
+require_once __DIR__ . "/../models/Penalty.php";
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -157,4 +158,32 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
         header("Location: /LoanManagement/public/index.php?url=loan/index");
         exit;
     }
+
+
+    public function addPenalty() {
+
+    $penalty = new Penalty();
+
+    $loan_id = $_POST['loan_id'];
+    $borrower_id = $_POST['borrower_id'];
+    $amount = $_POST['amount'];
+    $reason = $_POST['reason'];
+
+    // OPTIONAL: auto interest-based penalty
+    if ($amount == "auto") {
+
+        $loan = $this->loan->getById($loan_id);
+        $amount = $loan['amount'] * 0.10; // 10% penalty example
+    }
+
+    $penalty->create([
+        "loan_id" => $loan_id,
+        "borrower_id" => $borrower_id,
+        "amount" => $amount,
+        "reason" => $reason
+    ]);
+
+    header("Location: /LoanManagement/public/index.php?url=loan/index");
+    exit;
+}
 }

@@ -11,13 +11,15 @@
 <table border="1" cellpadding="10">
 
     <tr>
+               <th>Loan ID</th>
         <th>Borrower</th>
         <th>Account</th>
         <th>Amount</th>
         <th>Interest</th>
         <th>Date Borrowed</th>
 <th>Due Date</th>
-        <th>Total</th>
+<th>Penalty</th>
+        <th>Total Due</th>
         <th>Action</th>
     </tr>
 
@@ -27,20 +29,33 @@
 
         <tr>
 
+            <td><?= $loan['id'] ?></td>
             <td><?= $loan['borrower_name'] ?></td>
 
             <td><?= $loan['account_names'] ?></td>
 
             <td>₱<?= number_format($loan['amount'], 2) ?></td>
+<td>₱<?= $loan['interest'] ?>%</td>
 
             <td><?= $loan['borrowed_date'] ?></td>
 <td><?= $loan['due_date'] ?></td>
+<td>₱<?= number_format($loan['total_penalty'], 2) ?></td>
 
             <td><?= $loan['interest'] ?>%</td>
 
-            <td>₱<?= number_format($loan['total'], 2) ?></td>
+            <td>
+    ₱<?= number_format($loan['total'] + $loan['total_penalty'], 2) ?>
+</td>
 
             <td>
+                |
+<a href="#"
+   onclick="openPenaltyModal(
+        <?= $loan['id'] ?>,
+        <?= $loan['borrower_id'] ?>
+   )">
+   Penalty
+</a>
                 <a href="/LoanManagement/public/index.php?url=loan/delete/<?= $loan['id'] ?>"
    onclick="return confirm('Delete loan?')">
    Delete
@@ -143,7 +158,52 @@ background:rgba(0,0,0,0.5);">
 
 
 
+<!-- PENALTY MODAL -->
+<div id="penaltyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.5);">
+
+    <div style="background:white; width:400px; margin:10% auto; padding:20px;">
+
+        <h3>Add Penalty</h3>
+
+        <form method="POST" action="/LoanManagement/public/index.php?url=loan/addPenalty">
+
+            <input type="hidden" name="loan_id" id="penalty_loan_id">
+            <input type="hidden" name="borrower_id" id="penalty_borrower_id">
+
+            <label>Penalty Amount</label><br>
+            <input type="number" name="amount" required>
+
+            <br><br>
+
+            <label>Reason</label><br>
+            <textarea name="reason" required></textarea>
+
+            <br><br>
+
+            <button type="submit">Save Penalty</button>
+            <button type="button" onclick="closePenaltyModal()">Cancel</button>
+
+        </form>
+
+    </div>
+</div>
+
+
+
 <script>
+
+function openPenaltyModal(loan_id, borrower_id) {
+
+    document.getElementById('penalty_loan_id').value = loan_id;
+    document.getElementById('penalty_borrower_id').value = borrower_id;
+
+    document.getElementById('penaltyModal').style.display = 'block';
+}
+
+function closePenaltyModal() {
+    document.getElementById('penaltyModal').style.display = 'none';
+}
 
 function openLoanCreateModal() {
     document.getElementById('loanCreateModal').style.display = 'block';
