@@ -15,16 +15,16 @@ public function getAll($search = '', $status = '', $date = '') {
             borrowers.fullname AS borrower_name,
 
             COALESCE(acc.account_names, '') AS account_names,
-
             COALESCE(p.total_penalty, 0) AS total_penalty,
-            COALESCE(pay.total_paid, 0) AS total_paid
+            COALESCE(pay.total_paid, 0) AS total_paid,
+
+            (loans.total + COALESCE(p.total_penalty, 0)) AS overall_total
 
         FROM loans
 
         LEFT JOIN borrowers 
             ON loans.borrower_id = borrowers.id
 
-        /* ACCOUNTS */
         LEFT JOIN (
             SELECT 
                 la.loan_id,
@@ -38,14 +38,12 @@ public function getAll($search = '', $status = '', $date = '') {
             GROUP BY la.loan_id
         ) acc ON loans.id = acc.loan_id
 
-        /* PAYMENTS */
         LEFT JOIN (
             SELECT loan_id, SUM(amount) AS total_paid
             FROM payments
             GROUP BY loan_id
         ) pay ON loans.id = pay.loan_id
 
-        /* PENALTIES */
         LEFT JOIN (
             SELECT loan_id, SUM(amount) AS total_penalty
             FROM penalties
@@ -57,7 +55,6 @@ public function getAll($search = '', $status = '', $date = '') {
 
     // SEARCH
     if (!empty($search)) {
-
         $sql .= "
             AND (
                 borrowers.fullname LIKE :search
@@ -66,39 +63,36 @@ public function getAll($search = '', $status = '', $date = '') {
         ";
     }
 
-    // STATUS
+    // STATUS FILTER (UPDATED)
     if ($status !== '') {
 
-        $sql .= "
-            AND loans.is_deleted = :status
-        ";
+        if ($status === 'paid') {
+            $sql .= " AND (loans.total + COALESCE(p.total_penalty,0)) <= COALESCE(pay.total_paid,0)";
+        }
+
+        if ($status === 'active') {
+            $sql .= " AND (loans.total + COALESCE(p.total_penalty,0)) > COALESCE(pay.total_paid,0)";
+        }
+
+        if ($status === 'overdue') {
+            $sql .= " AND loans.due_date < CURDATE() 
+                      AND (loans.total + COALESCE(p.total_penalty,0)) > COALESCE(pay.total_paid,0)";
+        }
     }
 
-    // DATE
+    // DATE FILTER
     if (!empty($date)) {
-
-        $sql .= "
-            AND loans.borrowed_date = :date
-        ";
+        $sql .= " AND loans.borrowed_date = :date";
     }
 
-    $sql .= "
-        ORDER BY loans.id DESC
-    ";
+    $sql .= " ORDER BY loans.id DESC";
 
     $stmt = $this->conn->prepare($sql);
 
-    // BIND SEARCH
     if (!empty($search)) {
         $stmt->bindValue(':search', "%$search%");
     }
 
-    // BIND STATUS
-    if ($status !== '') {
-        $stmt->bindValue(':status', $status);
-    }
-
-    // BIND DATE
     if (!empty($date)) {
         $stmt->bindValue(':date', $date);
     }
@@ -282,17 +276,18 @@ GROUP BY loans.id
 }
 
 
-public function addPayment($loan_id, $amount, $notes) {
+public function addPayment($loan_id, $amount, $notes, $account_id) {
 
     $stmt = $this->conn->prepare("
-        INSERT INTO payments (loan_id, amount, notes, created_at)
-        VALUES (?, ?, ?, NOW())
+        INSERT INTO payments (loan_id, amount, notes, account_id, created_at)
+        VALUES (?, ?, ?, ?, NOW())
     ");
 
     return $stmt->execute([
         $loan_id,
         $amount,
-        $notes
+        $notes,
+        $account_id
     ]);
 }
 
@@ -310,4 +305,41 @@ public function getTotalPaid($loan_id) {
     return $stmt->fetch(PDO::FETCH_ASSOC)['total_paid'];
 }
     
+
+public function getPayments($loan_id)
+{
+    $stmt = $this->conn->prepare("
+        SELECT * FROM payments 
+        WHERE loan_id = ?
+        ORDER BY id DESC
+    ");
+    $stmt->execute([$loan_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getPenalties($loan_id)
+{
+    $stmt = $this->conn->prepare("
+        SELECT * FROM penalties 
+        WHERE loan_id = ?
+        ORDER BY id DESC
+    ");
+    $stmt->execute([$loan_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getLoanAccounts($loan_id)
+{
+    $stmt = $this->conn->prepare("
+        SELECT 
+            la.amount,
+            a.account_name
+        FROM loan_accounts la
+        LEFT JOIN accounts a ON la.account_id = a.id
+        WHERE la.loan_id = ?
+    ");
+    $stmt->execute([$loan_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }

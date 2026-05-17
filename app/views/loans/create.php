@@ -1,18 +1,21 @@
 <?php include __DIR__ . "/../layouts/sidebar.php"; ?>
 
 <style>
-
-    body {
+body {
     font-family: Arial, sans-serif;
     background: #f5f6fa;
 }
 
 .container {
-    max-width: 700px;
+    max-width: 750px;
     margin: auto;
     background: #fff;
     padding: 20px;
     border-radius: 10px;
+}
+
+h2 {
+    margin-bottom: 15px;
 }
 
 label {
@@ -30,12 +33,14 @@ input, select {
 .row {
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
 .row > div {
     flex: 1;
 }
 
+/* BUTTONS */
 button {
     padding: 10px 15px;
     border: none;
@@ -47,6 +52,26 @@ button {
 
 button:hover {
     background: #2980b9;
+}
+
+.remove-btn {
+    background: #e74c3c;
+    padding: 8px 10px;
+    border-radius: 5px;
+    color: white;
+    border: none;
+}
+
+.remove-btn:hover {
+    background: #c0392b;
+}
+
+/* SUMMARY BOX */
+.summary {
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
 }
 </style>
 
@@ -79,7 +104,6 @@ button:hover {
     </select>
 
     <div class="row">
-
         <div>
             <label>Date Borrowed</label>
             <input type="date" name="borrowed_date" required>
@@ -87,25 +111,32 @@ button:hover {
 
         <div>
             <label>Loan Term (Days)</label>
-            <input type="number" name="days" placeholder="e.g. 15" required>
+            <input type="number" name="days" required>
         </div>
-
     </div>
 
-    <!-- AMOUNT -->
+    <!-- LOAN AMOUNT -->
     <label>Loan Amount</label>
-    <input type="number" name="amount" required>
+    <input type="number" id="amount" name="amount" required oninput="calculateAll()">
 
     <!-- INTEREST -->
     <label>Interest (%)</label>
-    <input type="number" name="interest" required>
+    <input type="number" id="interest" name="interest" required oninput="calculateAll()">
 
-    <!-- FUNDING ACCOUNTS -->
+    <!-- SUMMARY -->
+    <div class="summary">
+        <p>Interest Amount: <b>₱<span id="interest_amount">0.00</span></b></p>
+        <p>Total Payable: <b>₱<span id="total_payable">0.00</span></b></p>
+        <hr>
+        <p>Remaining Funding: <b>₱<span id="remaining_funding">0.00</span></b></p>
+    </div>
+
+    <!-- FUNDING -->
     <label>Funding Accounts</label>
 
     <div id="account-wrapper">
 
-        <div class="row">
+        <div class="row account-row">
 
             <div>
                 <select name="account_id[]" required>
@@ -119,8 +150,15 @@ button:hover {
             </div>
 
             <div>
-                <input type="number" name="account_amount[]" placeholder="Amount" required>
+                <input type="number"
+                       name="account_amount[]"
+                       class="account_amount"
+                       placeholder="Amount"
+                       required
+                       oninput="calculateAll()">
             </div>
+
+            <button type="button" class="remove-btn" onclick="removeRow(this)">X</button>
 
         </div>
 
@@ -140,10 +178,37 @@ button:hover {
 
 <script>
 
+function calculateAll() {
+
+    // ---------------- LOAN + INTEREST ----------------
+    let amount = parseFloat(document.getElementById('amount').value) || 0;
+    let interest = parseFloat(document.getElementById('interest').value) || 0;
+
+    let interestAmount = amount * (interest / 100);
+    let totalPayable = amount + interestAmount;
+
+    document.getElementById('interest_amount').innerText = interestAmount.toFixed(2);
+    document.getElementById('total_payable').innerText = totalPayable.toFixed(2);
+
+    // ---------------- FUNDING ----------------
+    let totalFunding = 0;
+
+    document.querySelectorAll('.account_amount').forEach(input => {
+        totalFunding += parseFloat(input.value) || 0;
+    });
+
+    let remaining = amount - totalFunding;
+
+    document.getElementById('remaining_funding').innerText =
+        remaining.toFixed(2);
+}
+
+// ---------------- ADD ROW ----------------
 function addAccountRow() {
 
     let html = `
-    <div class="row" style="margin-top:10px;">
+    <div class="row account-row" style="margin-top:10px;">
+
         <div>
             <select name="account_id[]" required>
                 <option value="">Select Account</option>
@@ -156,13 +221,27 @@ function addAccountRow() {
         </div>
 
         <div>
-            <input type="number" name="account_amount[]" placeholder="Amount" required>
+            <input type="number"
+                   name="account_amount[]"
+                   class="account_amount"
+                   placeholder="Amount"
+                   required
+                   oninput="calculateAll()">
         </div>
+
+        <button type="button" class="remove-btn" onclick="removeRow(this)">X</button>
+
     </div>
     `;
 
     document.getElementById('account-wrapper')
         .insertAdjacentHTML('beforeend', html);
+}
+
+// ---------------- REMOVE ROW ----------------
+function removeRow(btn) {
+    btn.parentElement.remove();
+    calculateAll();
 }
 
 </script>

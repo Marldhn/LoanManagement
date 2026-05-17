@@ -5,6 +5,7 @@ require_once __DIR__ . "/../models/Borrower.php";
 require_once __DIR__ . "/../models/Account.php";
 require_once __DIR__ . "/../models/Guarantor.php";
 require_once __DIR__ . "/../models/Penalty.php";
+require_once __DIR__ . "/../models/Payment.php";
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -26,17 +27,19 @@ class LoanController {
     // =========================
     // LIST LOANS
     // =========================
-    public function index() {
+   public function index() {
 
-        $search = $_GET['search'] ?? '';
-$status = $_GET['status'] ?? '';
-$date = $_GET['date'] ?? '';
+    $search = $_GET['search'] ?? '';
+    $status = $_GET['status'] ?? 'active'; // ✅ DEFAULT = active
+    $date = $_GET['date'] ?? '';
 
-$loans = $this->loan->getAll($search, $status, $date);
+    $loans = $this->loan->getAll($search, $status, $date);
 
-        require "../app/views/loans/index.php";
-        
-    }
+    // 🔥 ADD THIS
+    $accounts = (new Account())->getAll();
+
+    require "../app/views/loans/index.php";
+}
 
     public function all() {
 
@@ -97,10 +100,22 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
 
         $total_funding = array_sum($account_amounts);
 
-        if ($total_funding != $amount) {
-            die("Error: Funding must equal loan amount.");
-        }
+if ($total_funding != $amount) {
 
+    $_SESSION['error'] = "Funding must equal loan amount.";
+
+    // reload form data again
+    require_once "../app/models/Borrower.php";
+    require_once "../app/models/Guarantor.php";
+    require_once "../app/models/Account.php";
+
+    $borrowers = (new Borrower())->getAll();
+    $guarantors = (new Guarantor())->getAll();
+    $accounts = (new Account())->getAll();
+
+    require "../app/views/loans/create.php";
+    return;
+}
         foreach ($account_ids as $index => $account_id) {
 
             $deduct = $account_amounts[$index];
@@ -202,14 +217,39 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
 
 public function addPayment() {
 
-    $this->loan->addPayment(
-        $_POST['loan_id'],
-        $_POST['amount'],
-        $_POST['notes']
-    );
+    $loan_id = $_POST['loan_id'];
+    $amount = $_POST['amount'];
+    $notes = $_POST['notes'] ?? '';
+    $account_id = $_POST['account_id'];
 
-    header("Location: /LoanManagement/public/index.php?url=loan/index");
-    exit;
+    // 1. SAVE PAYMENT (UNCHANGED LOGIC)
+    $this->loan->addPayment($loan_id, $amount, $notes, $account_id);
+
+    // 2. UPDATE ACCOUNT BALANCE (FIXED SAFETY CHECK)
+    require_once "../app/models/Account.php";
+    $account = new Account();
+
+    // IMPORTANT: make sure account exists before updating
+    if (!empty($account_id) && $amount > 0) {
+        $account->addBalance($account_id, $amount);
+    }
+
+    // 3. REDIRECT BACK
+    header("Location: /LoanManagement/public/index.php?url=loan/details/$loan_id");
+exit;
 }
+
+
+public function details($id) {
+
+    $loan = $this->loan->getById($id);
+
+    $payments = $this->loan->getPayments($id);
+    $penalties = $this->loan->getPenalties($id);
+    $accounts = (new Account())->getAll(); // ✅ THIS IS REQUIRED
+
+    require "../app/views/loans/details.php";
+}
+
 
 }
