@@ -101,12 +101,8 @@ input, textarea {
 
 <h2>Loan List</h2>
 
-<a class="btn-primary" href="/LoanManagement/public/index.php?url=loan/create">
-    + Add Loan
-</a>
-
-<a class="btn-primary" href="/LoanManagement/public/index.php?url=loan/all">
-    All Loans
+<a class="btn-primary" href="/LoanManagement/public/index.php?url=loan/index">
+    Back
 </a>
 
 <table>
@@ -151,8 +147,8 @@ input, textarea {
             </button>
 
              <a class="btn btn-danger"
-               href="/LoanManagement/public/index.php?url=loan/delete/<?= $loan['id'] ?>"
-               onclick="return confirm('Delete this loan?')">
+               href="/LoanManagement/public/index.php?url=loan/forcedelete/<?= $loan['id'] ?>"
+               onclick="return confirm('Permanently delete this loan?')">
                Delete
             </a>
 

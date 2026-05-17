@@ -26,6 +26,7 @@ button, a.btn {
     font-size: 14px;
 }
 
+
 .btn-primary { background: #2d89ef; color: white; }
 .btn-primary:hover { background: #1b5fbf; }
 
@@ -126,7 +127,7 @@ input {
                     Edit
                 </button>
 
-                <a class="btn-danger"
+                 <a class="btn btn-danger"
                    href="/LoanManagement/public/index.php?url=guarantor/delete/<?= $g['id'] ?>"
                    onclick="return confirm('Delete this guarantor?')">
                     Delete

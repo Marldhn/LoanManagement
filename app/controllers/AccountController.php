@@ -81,12 +81,20 @@ class AccountController {
     // ----------------------------
     public function delete($id) {
 
-        $this->account->delete($id);
+    $this->account->delete($id);
 
-        header("Location: /LoanManagement/public/index.php?url=account/index");
-        exit;
-    }
+    header("Location: /LoanManagement/public/index.php?url=account/index");
+    exit;
+}
 
+
+public function forcedelete($id) {
+
+    $this->account->delete($id);
+
+    header("Location: /LoanManagement/public/index.php?url=account/index");
+    exit;
+}
     // ----------------------------
     // TRANSFER FORM
     // ----------------------------
@@ -135,4 +143,7 @@ class AccountController {
         header("Location: /LoanManagement/public/index.php?url=account/index");
         exit;
     }
+
+
+
 }

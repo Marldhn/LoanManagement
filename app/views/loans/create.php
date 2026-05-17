@@ -1,6 +1,12 @@
 <?php include __DIR__ . "/../layouts/sidebar.php"; ?>
 
 <style>
+
+    body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+}
+
 .container {
     max-width: 700px;
     margin: auto;

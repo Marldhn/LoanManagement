@@ -158,6 +158,17 @@ class Loan extends Model {
     return $stmt->execute([$id]);
 }
 
+
+public function forcedelete($id) {
+
+    $stmt = $this->conn->prepare("
+        DELETE FROM loans WHERE id = ?
+    ");
+
+    return $stmt->execute([$id]);
+}
+
+
     // =========================
     // LAST INSERT ID
     // =========================
@@ -165,7 +176,46 @@ class Loan extends Model {
         return $this->conn->lastInsertId();
     }
 
+public function getAllAll() {
 
+    $stmt = $this->conn->prepare("
+        SELECT 
+            loans.*,
+            borrowers.fullname AS borrower_name,
+
+            COALESCE(
+                GROUP_CONCAT(
+                    CONCAT(
+                        accounts.account_name,
+                        ' (₱',
+                        loan_accounts.amount,
+                        ')'
+                    )
+                    SEPARATOR ', '
+                ),
+                ''
+            ) AS account_names
+
+        FROM loans
+
+        LEFT JOIN borrowers
+            ON loans.borrower_id = borrowers.id
+
+        LEFT JOIN loan_accounts
+            ON loans.id = loan_accounts.loan_id
+
+        LEFT JOIN accounts
+            ON loan_accounts.account_id = accounts.id
+
+        GROUP BY loans.id
+
+        ORDER BY loans.id DESC
+    ");
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     
 }

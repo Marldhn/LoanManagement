@@ -2,6 +2,12 @@
 
 <style>
 
+    body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+}
+
+
 .borrower-card {
     background: #2c3e50;
     color: white;

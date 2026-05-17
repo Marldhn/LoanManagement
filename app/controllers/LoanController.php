@@ -33,6 +33,13 @@ class LoanController {
         require "../app/views/loans/index.php";
     }
 
+    public function all() {
+
+    $loans = $this->loan->getAllAll();
+
+    require "../app/views/loans/all.php";
+}
+
     // =========================
     // CREATE VIEW
     // =========================
@@ -151,14 +158,13 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
     // =========================
     // DELETE
     // =========================
-    public function delete($id) {
+    public function forcedelete($id) {
 
-        $this->loan->delete($id);
+    $this->loan->forcedelete($id);
 
-        header("Location: /LoanManagement/public/index.php?url=loan/index");
-        exit;
-    }
-
+    header("Location: /LoanManagement/public/index.php?url=loan/all");
+    exit;
+}
 
     public function addPenalty() {
 
@@ -186,4 +192,5 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
     header("Location: /LoanManagement/public/index.php?url=loan/index");
     exit;
 }
+
 }

@@ -128,11 +128,11 @@ input, select {
                 Edit
             </button>
 
-            <a class="btn btn-danger"
-               href="/LoanManagement/public/index.php?url=account/delete/<?= $account['id'] ?>"
-               onclick="return confirm('Delete this account?')">
-               Delete
-            </a>
+      <a class="btn btn-danger"
+   href="/LoanManagement/public/index.php?url=account/forceDelete/<?= $account['id'] ?>"
+   onclick="return confirm('Permanently delete this account?')">
+    Delete
+</a>
         </td>
     </tr>
     <?php endforeach; ?>

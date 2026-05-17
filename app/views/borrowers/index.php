@@ -75,6 +75,10 @@ th, td {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
+.modal.show {
+    display: flex;
+}
+
 .modal-content h3 {
     margin-bottom: 15px;
 }
@@ -201,6 +205,7 @@ input, select {
 </div>
 
 <script>
+
 
 function openCreateModal() {
     document.getElementById('createModal').classList.add('show');

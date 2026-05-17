@@ -124,32 +124,32 @@ public function update($data) {
 
 public function delete($id) {
 
-    // 1. get funding records
+    // 1. get all loan funding records for this account
     $stmt = $this->conn->prepare("
-        SELECT * FROM loan_accounts WHERE loan_id = ?
+        SELECT loan_id, amount 
+        FROM loan_accounts 
+        WHERE account_id = ?
     ");
     $stmt->execute([$id]);
     $fundings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 2. restore account balances
-    require_once __DIR__ . "/Account.php";
-    $accountModel = new Account();
-
+    // 2. rollback balances (if needed logic)
     foreach ($fundings as $f) {
-        $accountModel->addBalance($f['account_id'], $f['amount']);
+        $this->addBalance($id, $f['amount']);
     }
 
-    // 3. delete loan_accounts first
+    // 3. delete loan_accounts records first
     $stmt = $this->conn->prepare("
-        DELETE FROM loan_accounts WHERE loan_id = ?
+        DELETE FROM loan_accounts WHERE account_id = ?
     ");
     $stmt->execute([$id]);
 
-    // 4. delete loan
+    // 4. delete account
     $stmt = $this->conn->prepare("
-        DELETE FROM loans WHERE id = ?
+        DELETE FROM accounts WHERE id = ?
     ");
-    $stmt->execute([$id]);
+
+    return $stmt->execute([$id]);
 }
 
 
