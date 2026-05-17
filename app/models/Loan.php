@@ -7,9 +7,9 @@ class Loan extends Model {
     // =========================
     // GET ALL LOANS
     // =========================
-public function getAll() {
+public function getAll($search = '', $status = '', $date = '') {
 
-    $stmt = $this->conn->prepare("
+    $sql = "
         SELECT 
             loans.*,
             borrowers.fullname AS borrower_name,
@@ -24,7 +24,7 @@ public function getAll() {
         LEFT JOIN borrowers 
             ON loans.borrower_id = borrowers.id
 
-        /* ACCOUNTS (pre-aggregated safely) */
+        /* ACCOUNTS */
         LEFT JOIN (
             SELECT 
                 la.loan_id,
@@ -33,7 +33,8 @@ public function getAll() {
                     SEPARATOR ', '
                 ) AS account_names
             FROM loan_accounts la
-            LEFT JOIN accounts a ON la.account_id = a.id
+            LEFT JOIN accounts a 
+                ON la.account_id = a.id
             GROUP BY la.loan_id
         ) acc ON loans.id = acc.loan_id
 
@@ -51,16 +52,61 @@ public function getAll() {
             GROUP BY loan_id
         ) p ON loans.id = p.loan_id
 
-        WHERE loans.is_deleted = 0
+        WHERE 1=1
+    ";
 
+    // SEARCH
+    if (!empty($search)) {
+
+        $sql .= "
+            AND (
+                borrowers.fullname LIKE :search
+                OR acc.account_names LIKE :search
+            )
+        ";
+    }
+
+    // STATUS
+    if ($status !== '') {
+
+        $sql .= "
+            AND loans.is_deleted = :status
+        ";
+    }
+
+    // DATE
+    if (!empty($date)) {
+
+        $sql .= "
+            AND loans.borrowed_date = :date
+        ";
+    }
+
+    $sql .= "
         ORDER BY loans.id DESC
-    ");
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    // BIND SEARCH
+    if (!empty($search)) {
+        $stmt->bindValue(':search', "%$search%");
+    }
+
+    // BIND STATUS
+    if ($status !== '') {
+        $stmt->bindValue(':status', $status);
+    }
+
+    // BIND DATE
+    if (!empty($date)) {
+        $stmt->bindValue(':date', $date);
+    }
 
     $stmt->execute();
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
     // =========================
     // CREATE LOAN
     // =========================

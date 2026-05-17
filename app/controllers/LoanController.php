@@ -28,7 +28,11 @@ class LoanController {
     // =========================
     public function index() {
 
-        $loans = $this->loan->getAll();
+        $search = $_GET['search'] ?? '';
+$status = $_GET['status'] ?? '';
+$date = $_GET['date'] ?? '';
+
+$loans = $this->loan->getAll($search, $status, $date);
 
         require "../app/views/loans/index.php";
         

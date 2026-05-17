@@ -95,19 +95,118 @@ input, textarea {
 .show {
     display: flex;
 }
+
+.ls-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.ls-search{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+.ls-field input,
+.ls-field select{
+    padding:10px 12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    outline:none;
+    min-width:180px;
+}
+
+.ls-field input:focus,
+.ls-field select:focus{
+    border-color:#2d89ef;
+}
+
+.ls-btn{
+    padding:10px 14px;
+    background:#2d89ef;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.ls-btn:hover{
+    background:#1b5fbf;
+}
+
+.ls-reset{
+    padding:10px 12px;
+    background:#f1f1f1;
+    color:#333;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+.ls-add{
+    padding:10px 14px;
+    background:#28a745;
+    color:white;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+.ls-add:hover{
+    background:#1f7a33;
+}
+
+
 </style>
 
-<div class="container">
+<div class="ls-toolbar">
 
-<h2>Loan List</h2>
+    <h2>Loan List</h2>
 
-<a class="btn-primary" href="/LoanManagement/public/index.php?url=loan/create">
-    + Add Loan
-</a>
+    <form method="GET"
+          action="/LoanManagement/public/index.php"
+          class="ls-search">
 
-<a class="btn-primary" href="/LoanManagement/public/index.php?url=loan/all">
-    All Loans
-</a>
+        <input type="hidden" name="url" value="loan/index">
+
+        <div class="ls-field">
+            <input type="text"
+                   name="search"
+                   placeholder="🔍 Search borrower or account..."
+                   value="<?= $_GET['search'] ?? '' ?>">
+        </div>
+
+        <div class="ls-field">
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="0" <?= (($_GET['status'] ?? '') === '0') ? 'selected' : '' ?>>Active</option>
+                <option value="1" <?= (($_GET['status'] ?? '') === '1') ? 'selected' : '' ?>>Deleted</option>
+            </select>
+        </div>
+
+        <div class="ls-field">
+            <input type="date" name="date" value="<?= $_GET['date'] ?? '' ?>">
+        </div>
+
+        <button type="submit" class="ls-btn">
+            Filter
+        </button>
+
+        <a href="/LoanManagement/public/index.php?url=loan/index" class="ls-reset">
+            Reset
+        </a>
+
+    </form>
+
+    <a class="ls-add"
+       href="/LoanManagement/public/index.php?url=loan/create">
+        + Add Loan
+    </a>
+
+</div>
 
 <table>
     <tr>
