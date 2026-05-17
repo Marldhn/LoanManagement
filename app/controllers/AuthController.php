@@ -19,25 +19,52 @@ class AuthController {
         $email = $_POST['email'];
         $password = $_POST['password'];
 
-        $user = $this->user->login($email, $password);
+        $user = $this->user->findByEmail($email);
 
-        if ($user) {
+        if ($user && password_verify($password, $user['password'])) {
 
-            $_SESSION['user'] = $user['name'];
-            $_SESSION['role'] = $user['role'];
+            $_SESSION['user'] = [
+                "id" => $user['id'],
+                "name" => $user['name'],
+                "email" => $user['email'],
+                "role" => $user['role']
+            ];
 
             header("Location: /LoanManagement/public/index.php?url=loan/index");
             exit;
-
-        } else {
-            echo "Invalid login credentials";
         }
+
+        // ❌ INVALID LOGIN → back to login page with error
+        header("Location: /LoanManagement/public/index.php?url=auth/login&error=1");
+        exit;
     }
 
     public function logout() {
 
         session_start();
         session_destroy();
+
+        header("Location: /LoanManagement/public/index.php?url=auth/login");
+        exit;
+    }
+
+    public function register() {
+        require "../app/views/auth/register.php";
+    }
+
+    public function storeRegister() {
+
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $role = $_POST['role'] ?? 'user';
+
+        $this->user->create([
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'role' => $role
+        ]);
 
         header("Location: /LoanManagement/public/index.php?url=auth/login");
         exit;

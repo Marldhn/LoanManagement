@@ -118,31 +118,47 @@ input, textarea {
         <th>Borrowed</th>
         <th>Due</th>
         <th>Penalty</th>
-        <th>Total</th>
         <th>Overall Total</th>
+        <th>Total Paid</th>
+        <th>Remaining</th>
         <th>Action</th>
     </tr>
 
-    <?php foreach ($loans as $loan): ?>
+       <?php foreach ($loans as $loan): ?>
 
     <?php
-        $penalty = $loan['total_penalty'] ?? 0;
-        $total = $loan['total'] ?? 0;
-        $final = $total + $penalty;
-    ?>
+    // BASE LOAN TOTAL (interest included already from DB)
+    $total = $loan['total'] ?? 0;
+
+    // PENALTY
+    $penalty = $loan['total_penalty'] ?? 0;
+
+    // TOTAL PAID
+    $total_paid = $loan['total_paid'] ?? 0;
+
+    // FINAL TOTAL DUE (THIS IS THE REAL AMOUNT CUSTOMER OWES)
+    $overall_total = $total + $penalty;
+
+    // REMAINING BALANCE
+    $remaining = $overall_total - $total_paid;
+?>
 
     <tr>
-        <td><?= $loan['borrower_name'] ?></td>
-        <td><?= $loan['account_names'] ?></td>
+        <td><b><?= $loan['borrower_name'] ?></b></td>
+        <td><b><?= $loan['account_names'] ?></b></td>
 
-        <td>₱<?= number_format($loan['amount'], 2) ?></td>
-        <td><?= $loan['interest'] ?>%</td>
-        <td><?= $loan['borrowed_date'] ?></td>
-        <td><?= $loan['due_date'] ?></td>
+        <td><b></b>₱<?= number_format($loan['amount'], 2) ?></b></td>
+        <td><b><?= $loan['interest'] ?>%</b></td>
+        <td><b><?= $loan['borrowed_date'] ?></b></td>
+        <td><b><?= $loan['due_date'] ?></b></td>
 
-        <td>₱<?= number_format($penalty, 2) ?></td>
-        <td>₱<?= number_format($total, 2) ?></td>
-        <td><b>₱<?= number_format($final, 2) ?></b></td>
+<td>₱<?= number_format($penalty, 2) ?></td>
+
+<td>₱<?= number_format($overall_total, 2) ?></td>
+
+<td>₱<?= number_format($total_paid, 2) ?></td>
+
+<td>₱<?= number_format($remaining, 2) ?></td>
 
         <td>
             <button class="btn-primary"
@@ -155,6 +171,9 @@ input, textarea {
                onclick="return confirm('Delete this loan?')">
                Delete
             </a>
+            <button onclick="openPaymentModal(<?= $loan['id'] ?>)">
+    Pay
+</button>
 
         </td>
     </tr>
@@ -163,6 +182,8 @@ input, textarea {
 </table>
 
 </div>
+
+
 
 <!-- PENALTY MODAL -->
 <div id="penaltyModal" class="modal">
@@ -188,6 +209,28 @@ input, textarea {
     </div>
 </div>
 
+
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <h3>Add Payment</h3>
+
+        <form method="POST" action="/LoanManagement/public/index.php?url=loan/addPayment">
+
+            <input type="hidden" name="loan_id" id="payment_loan_id">
+
+            <label>Amount</label>
+            <input type="number" name="amount" required>
+
+            <label>Notes</label>
+            <textarea name="notes"></textarea>
+
+            <button type="submit">Save</button>
+            <button type="button" onclick="closePaymentModal()">Cancel</button>
+
+        </form>
+    </div>
+</div>
+
 <script>
 function openPenaltyModal(id) {
     document.getElementById('penalty_loan_id').value = id;
@@ -196,6 +239,15 @@ function openPenaltyModal(id) {
 
 function closePenaltyModal() {
     document.getElementById('penaltyModal').classList.remove('show');
+}
+
+function openPaymentModal(id) {
+    document.getElementById('payment_loan_id').value = id;
+    document.getElementById('paymentModal').classList.add('show');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('show');
 }
 </script>
 

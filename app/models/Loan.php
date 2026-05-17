@@ -7,39 +7,44 @@ class Loan extends Model {
     // =========================
     // GET ALL LOANS
     // =========================
-   public function getAll() {
+public function getAll() {
 
     $stmt = $this->conn->prepare("
         SELECT 
             loans.*,
             borrowers.fullname AS borrower_name,
 
-            COALESCE(
-                GROUP_CONCAT(
-                    CONCAT(
-                        accounts.account_name,
-                        ' (₱',
-                        loan_accounts.amount,
-                        ')'
-                    )
-                    SEPARATOR ', '
-                ),
-                ''
-            ) AS account_names,
+            COALESCE(acc.account_names, '') AS account_names,
 
-            COALESCE(p.total_penalty, 0) AS total_penalty
+            COALESCE(p.total_penalty, 0) AS total_penalty,
+            COALESCE(pay.total_paid, 0) AS total_paid
 
         FROM loans
 
         LEFT JOIN borrowers 
             ON loans.borrower_id = borrowers.id
 
-        LEFT JOIN loan_accounts 
-            ON loans.id = loan_accounts.loan_id
+        /* ACCOUNTS (pre-aggregated safely) */
+        LEFT JOIN (
+            SELECT 
+                la.loan_id,
+                GROUP_CONCAT(
+                    CONCAT(a.account_name, ' (₱', la.amount, ')')
+                    SEPARATOR ', '
+                ) AS account_names
+            FROM loan_accounts la
+            LEFT JOIN accounts a ON la.account_id = a.id
+            GROUP BY la.loan_id
+        ) acc ON loans.id = acc.loan_id
 
-        LEFT JOIN accounts 
-            ON loan_accounts.account_id = accounts.id
+        /* PAYMENTS */
+        LEFT JOIN (
+            SELECT loan_id, SUM(amount) AS total_paid
+            FROM payments
+            GROUP BY loan_id
+        ) pay ON loans.id = pay.loan_id
 
+        /* PENALTIES */
         LEFT JOIN (
             SELECT loan_id, SUM(amount) AS total_penalty
             FROM penalties
@@ -47,8 +52,6 @@ class Loan extends Model {
         ) p ON loans.id = p.loan_id
 
         WHERE loans.is_deleted = 0
-
-        GROUP BY loans.id
 
         ORDER BY loans.id DESC
     ");
@@ -179,37 +182,52 @@ public function forcedelete($id) {
 public function getAllAll() {
 
     $stmt = $this->conn->prepare("
-        SELECT 
-            loans.*,
-            borrowers.fullname AS borrower_name,
+    SELECT 
+    loans.*,
+    borrowers.fullname AS borrower_name,
 
-            COALESCE(
-                GROUP_CONCAT(
-                    CONCAT(
-                        accounts.account_name,
-                        ' (₱',
-                        loan_accounts.amount,
-                        ')'
-                    )
-                    SEPARATOR ', '
-                ),
-                ''
-            ) AS account_names
+    COALESCE(
+        GROUP_CONCAT(
+            CONCAT(
+                accounts.account_name,
+                ' (₱',
+                loan_accounts.amount,
+                ')'
+            )
+            SEPARATOR ', '
+        ),
+        ''
+    ) AS account_names,
 
-        FROM loans
+    COALESCE(p.total_penalty, 0) AS total_penalty,
+    COALESCE(pay.total_paid, 0) AS total_paid
 
-        LEFT JOIN borrowers
-            ON loans.borrower_id = borrowers.id
+FROM loans
 
-        LEFT JOIN loan_accounts
-            ON loans.id = loan_accounts.loan_id
+LEFT JOIN borrowers 
+    ON loans.borrower_id = borrowers.id
 
-        LEFT JOIN accounts
-            ON loan_accounts.account_id = accounts.id
+LEFT JOIN loan_accounts 
+    ON loans.id = loan_accounts.loan_id
 
-        GROUP BY loans.id
+LEFT JOIN accounts 
+    ON loan_accounts.account_id = accounts.id
 
-        ORDER BY loans.id DESC
+LEFT JOIN (
+    SELECT loan_id, SUM(amount) AS total_penalty
+    FROM penalties
+    GROUP BY loan_id
+) p ON loans.id = p.loan_id
+
+LEFT JOIN (
+    SELECT loan_id, SUM(amount) AS total_paid
+    FROM payments
+    GROUP BY loan_id
+) pay ON loans.id = pay.loan_id
+
+WHERE loans.is_deleted = 0
+
+GROUP BY loans.id
     ");
 
     $stmt->execute();
@@ -217,5 +235,33 @@ public function getAllAll() {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+
+public function addPayment($loan_id, $amount, $notes) {
+
+    $stmt = $this->conn->prepare("
+        INSERT INTO payments (loan_id, amount, notes, created_at)
+        VALUES (?, ?, ?, NOW())
+    ");
+
+    return $stmt->execute([
+        $loan_id,
+        $amount,
+        $notes
+    ]);
+}
+
+
+public function getTotalPaid($loan_id) {
+
+    $stmt = $this->conn->prepare("
+        SELECT COALESCE(SUM(amount), 0) AS total_paid
+        FROM payments
+        WHERE loan_id = ?
+    ");
+
+    $stmt->execute([$loan_id]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total_paid'];
+}
     
 }

@@ -31,6 +31,7 @@ class LoanController {
         $loans = $this->loan->getAll();
 
         require "../app/views/loans/index.php";
+        
     }
 
     public function all() {
@@ -171,15 +172,16 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
     $penalty = new Penalty();
 
     $loan_id = $_POST['loan_id'];
-    $borrower_id = $_POST['borrower_id'];
     $amount = $_POST['amount'];
     $reason = $_POST['reason'];
 
-    // OPTIONAL: auto interest-based penalty
-    if ($amount == "auto") {
+    // GET borrower_id FROM LOAN
+    $loan = $this->loan->getById($loan_id);
+    $borrower_id = $loan['borrower_id'];
 
-        $loan = $this->loan->getById($loan_id);
-        $amount = $loan['amount'] * 0.10; // 10% penalty example
+    // AUTO penalty logic
+    if ($amount == "auto") {
+        $amount = $loan['amount'] * 0.10;
     }
 
     $penalty->create([
@@ -188,6 +190,19 @@ $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
         "amount" => $amount,
         "reason" => $reason
     ]);
+
+    header("Location: /LoanManagement/public/index.php?url=loan/index");
+    exit;
+}
+
+
+public function addPayment() {
+
+    $this->loan->addPayment(
+        $_POST['loan_id'],
+        $_POST['amount'],
+        $_POST['notes']
+    );
 
     header("Location: /LoanManagement/public/index.php?url=loan/index");
     exit;

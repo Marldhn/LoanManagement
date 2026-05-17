@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Register</title>
 
     <style>
         * {
@@ -20,35 +20,32 @@
             overflow: hidden;
         }
 
-        /* floating background glow */
-        body::before {
-            content: "";
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: #2d89ef;
-            filter: blur(120px);
-            top: -100px;
-            left: -100px;
-            opacity: 0.4;
-        }
-
+        body::before,
         body::after {
             content: "";
             position: absolute;
             width: 400px;
             height: 400px;
-            background: #00c6ff;
             filter: blur(120px);
+            opacity: 0.4;
+        }
+
+        body::before {
+            background: #2d89ef;
+            top: -100px;
+            left: -100px;
+        }
+
+        body::after {
+            background: #00c6ff;
             bottom: -100px;
             right: -100px;
-            opacity: 0.3;
         }
 
         .card {
             position: relative;
-            width: 350px;
-            padding: 35px;
+            width: 360px;
+            padding: 30px;
             border-radius: 18px;
 
             background: rgba(255,255,255,0.1);
@@ -63,19 +60,11 @@
         }
 
         @keyframes fadeIn {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .title {
-            font-size: 24px;
-            font-weight: bold;
+        h2 {
             text-align: center;
             margin-bottom: 5px;
         }
@@ -84,13 +73,18 @@
             text-align: center;
             font-size: 12px;
             opacity: 0.7;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
-        input {
+        label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        input, select {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
+            padding: 10px;
+            margin: 6px 0 12px;
             border-radius: 10px;
             border: none;
             outline: none;
@@ -100,6 +94,10 @@
 
         input::placeholder {
             color: rgba(255,255,255,0.7);
+        }
+
+        select option {
+            color: black;
         }
 
         button {
@@ -139,22 +137,33 @@
 
 <div class="card">
 
-    <div class="title">Loan System</div>
-    <div class="subtitle">Sign in to continue</div>
+    <h2>Create Account</h2>
+    <div class="subtitle">Register to access Loan System</div>
 
-    <form method="POST" action="/LoanManagement/public/index.php?url=auth/authenticate">
+    <form method="POST" action="/LoanManagement/public/index.php?url=auth/storeRegister">
 
-        <input type="email" name="email" placeholder="Email" required>
+        <label>Name</label>
+        <input type="text" name="name" required>
 
-        <input type="password" name="password" placeholder="Password" required>
+        <label>Email</label>
+        <input type="email" name="email" required>
 
-        <button type="submit">Login</button>
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <label>Role</label>
+        <select name="role">
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+        </select>
+
+        <button type="submit">Register</button>
 
     </form>
 
     <div class="link">
-        No account?
-        <a href="/LoanManagement/public/index.php?url=auth/register">Create one</a>
+        Already have an account?
+        <a href="/LoanManagement/public/index.php?url=auth/login">Login</a>
     </div>
 
 </div>
