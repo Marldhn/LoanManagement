@@ -1,75 +1,88 @@
 <?php
 
-require_once "../core/Model.php";
+require_once "../app/models/Loan.php";
+require_once "../app/models/Account.php";
+require_once "../app/models/Borrower.php";
 
-class DashboardController extends Model {
+class DashboardController {
 
     public function index() {
 
-        // TOTAL BORROWERS
-        $stmt = $this->conn->prepare("
-            SELECT COUNT(*) as total FROM borrowers
-        ");
-        $stmt->execute();
-        $totalBorrowers = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $loanModel = new Loan();
+        $accountModel = new Account();
+        $borrowerModel = new Borrower();
 
-        // TOTAL ACCOUNTS
-        $stmt = $this->conn->prepare("
-            SELECT COUNT(*) as total FROM accounts
-        ");
-        $stmt->execute();
-        $totalAccounts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // =========================
+        // BASIC COUNTS
+        // =========================
+        $totalAccounts = count($accountModel->getAll());
+        $totalBorrowers = count($borrowerModel->getAll());
+        $allLoans = $loanModel->getAll();
+        $totalLoans = count($allLoans);
 
-        // TOTAL LOANS
-        $stmt = $this->conn->prepare("
-            SELECT COUNT(*) as total
-            FROM loans
-            WHERE is_deleted = 0
-        ");
-        $stmt->execute();
-        $totalLoans = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
-        // TOTAL LOAN AMOUNT
-        $stmt = $this->conn->prepare("
-            SELECT SUM(amount) as total
-            FROM loans
-            WHERE is_deleted = 0
-        ");
-        $stmt->execute();
-        $totalAmount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-
+        // =========================
         // TOTAL ACCOUNT BALANCE
-        $stmt = $this->conn->prepare("
-            SELECT SUM(balance) as total
-            FROM accounts
-        ");
-        $stmt->execute();
-        $totalAccountBalance = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        // =========================
+        $totalAccountBalance = 0;
+        foreach ($accountModel->getAll() as $acc) {
+            $totalAccountBalance += $acc['balance'];
+        }
 
-        // TOTAL PROFIT (INTEREST ONLY)
-        $stmt = $this->conn->prepare("
-            SELECT SUM(total - amount) as profit
-            FROM loans
-            WHERE is_deleted = 0
-        ");
-        $stmt->execute();
-        $profit = $stmt->fetch(PDO::FETCH_ASSOC)['profit'] ?? 0;
-
+        // =========================
         // RECENT LOANS
-        $stmt = $this->conn->prepare("
-            SELECT loans.*, borrowers.fullname as borrower_name
-            FROM loans
-            LEFT JOIN borrowers
-            ON loans.borrower_id = borrowers.id
-            WHERE loans.is_deleted = 0
-            ORDER BY loans.id DESC
-            LIMIT 5
-        ");
+        // =========================
+        $recentLoans = $allLoans;
 
-        $stmt->execute();
+        // =========================
+        // TOTAL LOAN AMOUNT (ALL LOANS)
+        // =========================
+        $totalAmount = 0;
 
-        $recentLoans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // ❌ OLD PROFIT (KEEPING VARIABLE BUT NOT USED ANYMORE)
+        $profit = 0;
 
+        // =========================
+        // ACTIVE LOANS + ACTIVE PROFIT
+        // =========================
+        $totalActiveLoans = 0;
+        $activeProfit = 0;
+
+        // ✅ NEW: UPCOMING PROFIT
+        $upcomingProfit = 0;
+
+        foreach ($allLoans as $loan) {
+
+            $total = $loan['total'] ?? 0;
+            $penalty = $loan['total_penalty'] ?? 0;
+            $paid = $loan['total_paid'] ?? 0;
+            $amount = $loan['amount'] ?? 0;
+
+            $overall = $total + $penalty;
+            $remaining = $overall - $paid;
+
+            // TOTAL LOAN AMOUNT
+            $totalAmount += $amount;
+
+            // OLD PROFIT (UNCHANGED)
+            $profit += ($paid - $amount);
+
+            // ACTIVE LOANS ONLY
+            if ($remaining > 0) {
+    $totalActiveLoans++;
+
+    $activeProfit += ($paid - $amount);
+
+    // ✅ ONLY PROFIT (interest + penalty)
+    $upcomingProfit += ($total + $penalty) - $amount;
+}
+        }
+
+        // =========================
+        // LOAD VIEW
+        // =========================
         require "../app/views/dashboard/index.php";
     }
+
+
+    
 }

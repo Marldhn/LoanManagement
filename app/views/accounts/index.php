@@ -132,6 +132,12 @@ input, select {
    href="/LoanManagement/public/index.php?url=account/forceDelete/<?= $account['id'] ?>"
    onclick="return confirm('Permanently delete this account?')">
     Delete
+
+</a>
+
+<a class="btn btn-primary"
+   href="/LoanManagement/public/index.php?url=account/details/<?= $account['id'] ?>">
+   Details
 </a>
         </td>
     </tr>

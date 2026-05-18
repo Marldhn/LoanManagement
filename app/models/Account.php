@@ -163,4 +163,36 @@ public function addBalance($id, $amount) {
 
     return $stmt->execute([$amount, $id]);
 }
+
+
+public function getLedger($account_id) {
+
+    $stmt = $this->conn->prepare("
+
+        SELECT 
+            'PAYMENT' AS type,
+            loan_id,
+            amount,
+            created_at
+        FROM payments
+        WHERE account_id = ?
+
+        UNION ALL
+
+        SELECT 
+            'FUNDING' AS type,
+            loan_id,
+            amount,
+            created_at
+        FROM loan_accounts
+        WHERE account_id = ?
+
+        ORDER BY created_at DESC
+
+    ");
+
+    $stmt->execute([$account_id, $account_id]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }

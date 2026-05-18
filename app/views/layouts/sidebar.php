@@ -122,6 +122,8 @@ USER DROPDOWN AREA
         <a href="/LoanManagement/public/index.php?url=account/index">Accounts</a>
         <a href="/LoanManagement/public/index.php?url=borrower/index">Borrowers</a>
         <a href="/LoanManagement/public/index.php?url=loan/index">Loans</a>
+                <a href="/LoanManagement/public/index.php?url=profit/index">Profits</a>
+
         <a href="/LoanManagement/public/index.php?url=guarantor/index">Guarantors</a>
 
         <!-- USER BOX -->

@@ -69,15 +69,22 @@ table th{
 
     <div class="cards">
 
-    <div class="card">
-    <h3>Total Account Balance</h3>
-    <h1>₱<?= number_format($totalAccountBalance, 2) ?></h1>
-</div>
+        <div class="card">
+            <h3>Total Account Balance</h3>
+            <h1>₱<?= number_format($totalAccountBalance, 2) ?></h1>
+        </div>
 
-<div class="card">
-    <h3>Total Profit</h3>
-    <h1>₱<?= number_format($profit, 2) ?></h1>
-</div>
+        <div class="card">
+        <h3>Upcoming Profit</h3>
+<h1>₱<?= number_format($upcomingProfit, 2) ?></h1>
+        </div>
+
+        <!-- ✅ NEW CARD -->
+        <div class="card">
+            <h3>Active Loans</h3>
+            <h1><?= $totalActiveLoans ?></h1>
+        </div>
+
 
         <div class="card">
             <h3>Total Borrowers</h3>

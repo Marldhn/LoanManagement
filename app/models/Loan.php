@@ -63,22 +63,37 @@ public function getAll($search = '', $status = '', $date = '') {
         ";
     }
 
-    // STATUS FILTER (UPDATED)
-    if ($status !== '') {
+    // =========================
+// STATUS FILTER (FIXED)
+// =========================
+if ($status !== '') {
 
-        if ($status === 'paid') {
-            $sql .= " AND (loans.total + COALESCE(p.total_penalty,0)) <= COALESCE(pay.total_paid,0)";
-        }
-
-        if ($status === 'active') {
-            $sql .= " AND (loans.total + COALESCE(p.total_penalty,0)) > COALESCE(pay.total_paid,0)";
-        }
-
-        if ($status === 'overdue') {
-            $sql .= " AND loans.due_date < CURDATE() 
-                      AND (loans.total + COALESCE(p.total_penalty,0)) > COALESCE(pay.total_paid,0)";
-        }
+    // NOT PAID = NO PAYMENT AT ALL
+    if ($status === 'not_paid') {
+        $sql .= " AND COALESCE(pay.total_paid,0) = 0";
     }
+
+    // PAID = FULLY PAID LOAN
+    if ($status === 'paid') {
+        $sql .= " AND (loans.total + COALESCE(p.total_penalty,0)) <= COALESCE(pay.total_paid,0)";
+    }
+
+    // ACTIVE = PARTIALLY PAID
+    if ($status === 'active') {
+        $sql .= "
+            AND COALESCE(pay.total_paid,0) > 0
+            AND (loans.total + COALESCE(p.total_penalty,0)) > COALESCE(pay.total_paid,0)
+        ";
+    }
+
+    // OVERDUE = NOT FULLY PAID AND PAST DUE DATE
+    if ($status === 'overdue') {
+        $sql .= "
+            AND loans.due_date < CURDATE()
+            AND (loans.total + COALESCE(p.total_penalty,0)) > COALESCE(pay.total_paid,0)
+        ";
+    }
+}
 
     // DATE FILTER
     if (!empty($date)) {

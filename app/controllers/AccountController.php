@@ -145,5 +145,17 @@ public function forcedelete($id) {
     }
 
 
+    // ✅ FIXED DETAILS (THIS IS THE IMPORTANT PART)
+    public function details($id) {
 
+        $account = $this->account->getById($id);
+
+        if (!$account) {
+            die("Account not found");
+        }
+
+        $ledger = $this->account->getLedger($id);
+
+        require "../app/views/accounts/details.php";
+    }
 }

@@ -103,6 +103,10 @@ td {
 .badge-active { background: #e7f5ff; color: #1971c2; }
 .badge-paid { background: #e6fcf5; color: #099268; }
 .badge-overdue { background: #fff5f5; color: #e03131; }
+.badge-not-paid {
+    background: #6c757d;
+    color: white;
+}
 </style>
 
 <div class="container">
@@ -123,10 +127,11 @@ td {
     <input type="text" name="search" placeholder="Search borrower...">
 
     <select name="status">
-        <option value="">Active Only</option>
-        <option value="paid">Paid</option>
-        <option value="overdue">Overdue</option>
-    </select>
+    <option value="">All</option>
+    <option value="not_paid">Not Paid</option>
+    <option value="paid">Paid</option>
+    <option value="overdue">Overdue</option>
+</select>
 
     <input type="date" name="date">
 
@@ -154,13 +159,23 @@ $paid = $loan['total_paid'] ?? 0;
 $overall = $total + $penalty;
 $remaining = $overall - $paid;
 
-if ($remaining <= 0) {
+if ($paid <= 0) {
+
+    $status = "NOT PAID";
+    $badge = "badge-not-paid";
+
+} elseif ($remaining <= 0) {
+
     $status = "PAID";
     $badge = "badge-paid";
+
 } elseif ($loan['due_date'] < date('Y-m-d')) {
+
     $status = "OVERDUE";
     $badge = "badge-overdue";
+
 } else {
+
     $status = "ACTIVE";
     $badge = "badge-active";
 }

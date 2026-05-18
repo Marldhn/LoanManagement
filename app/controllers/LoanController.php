@@ -30,9 +30,8 @@ class LoanController {
    public function index() {
 
     $search = $_GET['search'] ?? '';
-    $status = $_GET['status'] ?? 'active'; // ✅ DEFAULT = active
+    $status = $_GET['status'] ?? 'active'; 
     $date = $_GET['date'] ?? '';
-
     $loans = $this->loan->getAll($search, $status, $date);
 
     // 🔥 ADD THIS
