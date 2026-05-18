@@ -8,6 +8,10 @@
     <input type="text" name="account_name" placeholder="Account Name" required>
     <br><br>
 
+       <label>Account Number</label><br>
+    <input type="text" name="account_number" placeholder="Account Number" required>
+    <br><br>
+
     <label>Balance</label><br>
     <input type="number" name="balance" placeholder="Balance" required>
     <br><br>

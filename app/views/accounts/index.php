@@ -119,14 +119,15 @@ input, select {
         <td><?= $account['description'] ?></td>
         <td>
             <button class="btn-primary"
-                onclick="openEditModal(
-                    <?= $account['id'] ?>,
-                    '<?= addslashes($account['account_name']) ?>',
-                    '<?= $account['balance'] ?>',
-                    '<?= addslashes($account['description']) ?>'
-                )">
-                Edit
-            </button>
+    onclick="openEditModal(
+        <?= $account['id'] ?>,
+        '<?= addslashes($account['account_name']) ?>',
+        '<?= addslashes($account['account_number']) ?>',
+        '<?= $account['balance'] ?>',
+        '<?= addslashes($account['description']) ?>'
+    )">
+    Edit
+</button>
 
       <a class="btn btn-danger"
    href="/LoanManagement/public/index.php?url=account/forceDelete/<?= $account['id'] ?>"
@@ -157,6 +158,9 @@ input, select {
             <label>Account Name</label>
             <input type="text" name="account_name" required>
 
+                <label>Account Number</label>
+            <input type="text" name="account_number" required>
+
             <label>Balance</label>
             <input type="number" name="balance" required>
 
@@ -181,6 +185,9 @@ input, select {
 
             <label>Name</label>
             <input type="text" name="account_name" id="edit_name" required>
+
+             <label>Account Number</label>
+            <input type="text" name="account_number" id="edit_account_number" required>
 
             <label>Balance</label>
             <input type="number" name="balance" id="edit_balance" required>
@@ -242,12 +249,12 @@ function closeCreateModal() {
     document.getElementById('createModal').classList.remove('show');
 }
 
-function openEditModal(id, name, balance, desc) {
+function openEditModal(id, name, account_number, balance, description) {
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_name').value = name;
+    document.getElementById('edit_account_number').value = account_number;
     document.getElementById('edit_balance').value = balance;
-    document.getElementById('edit_description').value = desc;
-
+    document.getElementById('edit_description').value = description;
     document.getElementById('editModal').classList.add('show');
 }
 

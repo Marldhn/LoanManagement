@@ -64,76 +64,100 @@ class LoanController {
     // =========================
     public function store() {
 
-        $borrower_id = $_POST['borrower_id'];
-        $guarantor_id = $_POST['guarantor_id'] ?? null;
+    $borrower_id = $_POST['borrower_id'];
+    $guarantor_id = $_POST['guarantor_id'] ?? null;
 
-        $amount = $_POST['amount'];
-        $interest = $_POST['interest'];
-        $days = $_POST['days'];
-        $borrowed_date = $_POST['borrowed_date'];
-$days = $_POST['days'];
+    $amount = $_POST['amount'];
+    $interest = $_POST['interest'];
+    $days = $_POST['days'];
+    $borrowed_date = $_POST['borrowed_date'];
 
-// AUTO COMPUTE DUE DATE
-$due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
+    // AUTO COMPUTE DUE DATE
+    $due_date = date('Y-m-d', strtotime($borrowed_date . " + $days days"));
 
-        $total = $amount + ($amount * ($interest / 100));
+    // TOTAL LOAN WITH INTEREST
+    $total = $amount + ($amount * ($interest / 100));
 
-        // SAVE LOAN
-        $this->loan->create([
-            "borrower_id" => $borrower_id,
-            "guarantor_id" => $guarantor_id ?: null,
-            "borrowed_date" => $borrowed_date,
-            "due_date" => $due_date,
-            "amount" => $amount,
-            "interest" => $interest,
-            "total" => $total
-        ]);
+    // =========================
+    // SAVE LOAN
+    // =========================
+    $this->loan->create([
+        "borrower_id" => $borrower_id,
+        "guarantor_id" => $guarantor_id ?: null,
+        "borrowed_date" => $borrowed_date,
+        "due_date" => $due_date,
+        "amount" => $amount,
+        "interest" => $interest,
+        "total" => $total
+    ]);
 
-        $loan_id = $this->loan->getLastId();
+    $loan_id = $this->loan->getLastId();
 
-        // MULTI ACCOUNT FUNDING
-        $account_ids = $_POST['account_id'] ?? [];
-        $account_amounts = $_POST['account_amount'] ?? [];
+    // =========================
+    // MULTI ACCOUNT FUNDING
+    // =========================
+    $account_ids = $_POST['account_id'] ?? [];
+    $account_amounts = $_POST['account_amount'] ?? [];
 
-        $accountModel = new Account();
+    $accountModel = new Account();
 
-        $total_funding = array_sum($account_amounts);
+    $total_funding = array_sum($account_amounts);
 
-if ($total_funding != $amount) {
+    if ($total_funding != $amount) {
 
-    $_SESSION['error'] = "Funding must equal loan amount.";
+        $_SESSION['error'] = "Funding must equal loan amount.";
 
-    // reload form data again
-    require_once "../app/models/Borrower.php";
-    require_once "../app/models/Guarantor.php";
-    require_once "../app/models/Account.php";
+        require_once "../app/models/Borrower.php";
+        require_once "../app/models/Guarantor.php";
+        require_once "../app/models/Account.php";
 
-    $borrowers = (new Borrower())->getAll();
-    $guarantors = (new Guarantor())->getAll();
-    $accounts = (new Account())->getAll();
+        $borrowers = (new Borrower())->getAll();
+        $guarantors = (new Guarantor())->getAll();
+        $accounts = (new Account())->getAll();
 
-    require "../app/views/loans/create.php";
-    return;
-}
-        foreach ($account_ids as $index => $account_id) {
-
-            $deduct = $account_amounts[$index];
-
-            $accountModel->saveLoanAccount(
-                $loan_id,
-                $account_id,
-                $deduct
-            );
-
-            $accountModel->deductBalance(
-                $account_id,
-                $deduct
-            );
-        }
-
-        header("Location: /LoanManagement/public/index.php?url=loan/index");
-        exit;
+        require "../app/views/loans/create.php";
+        return;
     }
+
+    foreach ($account_ids as $index => $account_id) {
+
+        $deduct = $account_amounts[$index];
+
+        $accountModel->saveLoanAccount(
+            $loan_id,
+            $account_id,
+            $deduct
+        );
+
+        $accountModel->deductBalance(
+            $account_id,
+            $deduct
+        );
+    }
+
+    // =========================
+    // AUTO CREATE PROFIT RECORD
+    // =========================
+    require_once "../app/models/Profit.php";
+
+    $profitModel = new Profit();
+
+    // PROFIT = INTEREST ONLY
+    $profitAmount = $total - $amount;
+
+    $profitModel->create([
+        "source" => "Loan Interest",
+        "amount" => $profitAmount,
+        "type" => "loan",
+        "reference_id" => $loan_id
+    ]);
+
+    // =========================
+    // REDIRECT
+    // =========================
+    header("Location: /LoanManagement/public/index.php?url=loan/index");
+    exit;
+}
 
     // =========================
     // EDIT VIEW
@@ -221,21 +245,77 @@ public function addPayment() {
     $notes = $_POST['notes'] ?? '';
     $account_id = $_POST['account_id'];
 
-    // 1. SAVE PAYMENT (UNCHANGED LOGIC)
-    $this->loan->addPayment($loan_id, $amount, $notes, $account_id);
+    // =========================
+    // SAVE PAYMENT
+    // =========================
+    $this->loan->addPayment(
+        $loan_id,
+        $amount,
+        $notes,
+        $account_id
+    );
 
-    // 2. UPDATE ACCOUNT BALANCE (FIXED SAFETY CHECK)
+    // =========================
+    // UPDATE ACCOUNT BALANCE
+    // =========================
     require_once "../app/models/Account.php";
     $account = new Account();
 
-    // IMPORTANT: make sure account exists before updating
     if (!empty($account_id) && $amount > 0) {
-        $account->addBalance($account_id, $amount);
+
+        $account->addBalance(
+            $account_id,
+            $amount
+        );
     }
 
-    // 3. REDIRECT BACK
+    // =========================
+    // AUTO SAVE PROFIT
+    // =========================
+    require_once "../app/models/Profit.php";
+
+    $profitModel = new Profit();
+
+    // GET LOAN
+    $loan = $this->loan->getById($loan_id);
+
+    // TOTAL PROFIT OF LOAN
+    $expectedProfit = $loan['total'] - $loan['amount'];
+
+    // TOTAL PAID
+    $totalPaid = $this->loan->getTotalPaid($loan_id);
+
+    // REAL PROFIT ONLY
+    $realProfit = $totalPaid - $loan['amount'];
+
+    // NEVER NEGATIVE
+    if ($realProfit < 0) {
+        $realProfit = 0;
+    }
+
+    // LIMIT TO EXPECTED PROFIT
+    if ($realProfit > $expectedProfit) {
+        $realProfit = $expectedProfit;
+    }
+
+    // SAVE ONLY IF HAS PROFIT
+    if ($realProfit > 0) {
+
+        $profitModel->create([
+            "loan_id" => $loan_id,
+            "account_id" => $account_id,
+            "source" => "Loan Interest",
+            "amount" => $realProfit,
+            "type" => "loan",
+            "notes" => $notes
+        ]);
+    }
+
+    // =========================
+    // REDIRECT
+    // =========================
     header("Location: /LoanManagement/public/index.php?url=loan/details/$loan_id");
-exit;
+    exit;
 }
 
 
@@ -251,4 +331,22 @@ public function details($id) {
 }
 
 
+public function profit() {
+
+    $loanModel = new Loan();
+
+    // ALWAYS USE FULL CALCULATED DATA
+    $profits = $loanModel->getLoanProfitView();
+
+    // safety fallback (prevents undefined keys)
+    foreach ($profits as &$p) {
+
+        $p['paid'] = $p['total_paid'] ?? 0;
+        $p['expected_profit'] = $p['expected_profit'] ?? 0;
+        $p['realized_profit'] = $p['realized_profit'] ?? 0;
+        $p['status'] = $p['status'] ?? 'ACTIVE';
+    }
+
+    require "../app/views/loans/profit.php";
+}
 }

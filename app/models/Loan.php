@@ -357,4 +357,60 @@ public function getLoanAccounts($loan_id)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+
+public function getLoanProfitView() {
+
+    $stmt = $this->conn->prepare("
+        SELECT 
+            loans.id,
+            loans.amount,
+            COALESCE(loans.total,0) AS loan_total,
+            borrowers.fullname AS borrower_name,
+
+            COALESCE(pay.total_paid, 0) AS total_paid,
+            COALESCE(p.total_penalty, 0) AS total_penalty,
+
+            (COALESCE(loans.total,0) + COALESCE(p.total_penalty,0)) AS overall_total,
+
+            -- EXPECTED PROFIT
+            ((COALESCE(loans.total,0) + COALESCE(p.total_penalty,0)) - COALESCE(loans.amount,0)) AS expected_profit,
+
+            -- REALIZED PROFIT
+            (COALESCE(pay.total_paid,0) - COALESCE(loans.amount,0)) AS realized_profit,
+
+            CASE
+                WHEN COALESCE(pay.total_paid,0) >= (COALESCE(loans.total,0) + COALESCE(p.total_penalty,0)) THEN 'PAID'
+                WHEN COALESCE(pay.total_paid,0) = 0 THEN 'NOT PAID'
+                WHEN COALESCE(pay.total_paid,0) > 0 
+                     AND COALESCE(pay.total_paid,0) < (COALESCE(loans.total,0) + COALESCE(p.total_penalty,0))
+                     AND loans.due_date >= CURDATE() THEN 'ACTIVE'
+                WHEN loans.due_date < CURDATE() 
+                     AND COALESCE(pay.total_paid,0) < (COALESCE(loans.total,0) + COALESCE(p.total_penalty,0)) THEN 'OVERDUE'
+                ELSE 'ACTIVE'
+            END AS status
+
+        FROM loans
+
+        LEFT JOIN borrowers 
+            ON loans.borrower_id = borrowers.id
+
+        LEFT JOIN (
+            SELECT loan_id, SUM(amount) AS total_paid
+            FROM payments
+            GROUP BY loan_id
+        ) pay ON loans.id = pay.loan_id
+
+        LEFT JOIN (
+            SELECT loan_id, SUM(amount) AS total_penalty
+            FROM penalties
+            GROUP BY loan_id
+        ) p ON loans.id = p.loan_id
+
+        WHERE loans.is_deleted = 0
+        ORDER BY loans.id DESC
+    ");
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }

@@ -19,14 +19,6 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-/* HEADER */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
 /* TABLE */
 table {
     width: 100%;
@@ -55,6 +47,7 @@ th {
 
 .in { background: #28a745; }
 .out { background: #dc3545; }
+.profit { background: #007bff; }
 </style>
 
 <div class="container">
@@ -62,6 +55,7 @@ th {
 <a href="/LoanManagement/public/index.php?url=account/index">
     ⬅ Back to Accounts
 </a>
+
 <?php
 $total_in = 0;
 $total_out = 0;
@@ -69,7 +63,7 @@ $total_out = 0;
 
 <div class="card">
     <h2><?= $account['account_name'] ?></h2>
-
+    <p><b>Account Number:</b> <?= $account['account_number'] ?></p>
     <p><b>Current Balance:</b> ₱<?= number_format($account['balance'], 2) ?></p>
 </div>
 
@@ -80,17 +74,33 @@ $total_out = 0;
         <tr>
             <th>Date</th>
             <th>Type</th>
-            <th>Loan ID</th>
             <th>Amount</th>
         </tr>
 
         <?php foreach ($ledger as $row): ?>
 
             <?php
-                if ($row['type'] === 'PAYMENT') {
+                // =========================
+                // IN / OUT LOGIC FIXED
+                // =========================
+                if ($row['type'] === 'PAYMENT' || $row['type'] === 'PROFIT') {
                     $total_in += $row['amount'];
                 } else {
                     $total_out += $row['amount'];
+                }
+
+                // =========================
+                // BADGE DISPLAY
+                // =========================
+                if ($row['type'] === 'PAYMENT') {
+                    $label = 'IN';
+                    $class = 'in';
+                } elseif ($row['type'] === 'PROFIT') {
+                    $label = 'PROFIT';
+                    $class = 'profit';
+                } else {
+                    $label = 'OUT';
+                    $class = 'out';
                 }
             ?>
 
@@ -98,15 +108,10 @@ $total_out = 0;
                 <td><?= $row['created_at'] ?></td>
 
                 <td>
-                    <?php if ($row['type'] === 'PAYMENT'): ?>
-                        <span class="badge in">IN</span>
-                    <?php else: ?>
-                        <span class="badge out">OUT</span>
-                    <?php endif; ?>
+                    <span class="badge <?= $class ?>">
+                        <?= $label ?>
+                    </span>
                 </td>
-
-                <td>#<?= $row['loan_id'] ?></td>
-
                 <td>
                     ₱<?= number_format($row['amount'], 2) ?>
                 </td>

@@ -24,14 +24,15 @@ class Account extends Model {
 
         $stmt = $this->conn->prepare("
             INSERT INTO accounts
-            (account_name, balance, description)
-            VALUES (?, ?, ?)
+            (account_name, balance, description, account_number)
+            VALUES (?, ?, ?, ?)
         ");
 
         return $stmt->execute([
             $data['account_name'],
             $data['balance'],
-            $data['description']
+            $data['description'],
+            $data['account_number']
         ]);
     }
 
@@ -109,7 +110,7 @@ public function update($data) {
 
     $stmt = $this->conn->prepare("
         UPDATE accounts
-        SET account_name = ?, balance = ?, description = ?
+        SET account_name = ?, balance = ?, description = ?, account_number = ?
         WHERE id = ?
     ");
 
@@ -117,6 +118,7 @@ public function update($data) {
         $data['account_name'],
         $data['balance'],
         $data['description'],
+        $data['account_number'],
         $data['id']
     ]);
 }
@@ -187,11 +189,25 @@ public function getLedger($account_id) {
         FROM loan_accounts
         WHERE account_id = ?
 
+        UNION ALL
+
+        SELECT 
+            'PROFIT' AS type,
+            NULL AS loan_id,
+            amount,
+            created_at
+        FROM profits
+        WHERE reference_id = ?
+
         ORDER BY created_at DESC
 
     ");
 
-    $stmt->execute([$account_id, $account_id]);
+    $stmt->execute([
+        $account_id,
+        $account_id,
+        $account_id
+    ]);
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

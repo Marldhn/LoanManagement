@@ -43,7 +43,8 @@ class AccountController {
         $this->account->create([
             "account_name" => $_POST['account_name'],
             "balance" => $_POST['balance'],
-            "description" => $_POST['description']
+            "description" => $_POST['description'],
+            "account_number" => $_POST['account_number']
         ]);
 
         header("Location: /LoanManagement/public/index.php?url=account/index");
@@ -69,7 +70,8 @@ class AccountController {
             "id" => $_POST['id'],
             "account_name" => $_POST['account_name'],
             "balance" => $_POST['balance'],
-            "description" => $_POST['description']
+            "description" => $_POST['description'],
+            "account_number" => $_POST['account_number']
         ]);
 
         header("Location: /LoanManagement/public/index.php?url=account/index");
