@@ -3,6 +3,8 @@
 require_once "../app/models/Loan.php";
 require_once "../app/models/Account.php";
 require_once "../app/models/Borrower.php";
+require_once "../app/models/Expense.php";
+require_once "../app/models/Profit.php";
 
 class DashboardController {
 
@@ -11,6 +13,8 @@ class DashboardController {
         $loanModel = new Loan();
         $accountModel = new Account();
         $borrowerModel = new Borrower();
+        $expenseModel = new Expense();
+
 
         // =========================
         // BASIC COUNTS
@@ -19,6 +23,7 @@ class DashboardController {
         $totalBorrowers = count($borrowerModel->getAll());
         $allLoans = $loanModel->getAll();
         $totalLoans = count($allLoans);
+        $totalExpenses = $expenseModel->getTotal();
 
         // =========================
         // TOTAL ACCOUNT BALANCE

@@ -97,6 +97,13 @@ table th{
         </div>
 
         <div class="card">
+    <h3>Total Expenses</h3>
+    <h2 style="color:red;">
+        ₱<?= number_format($totalExpenses, 2) ?>
+    </h2>
+</div>
+
+        <div class="card">
             <h3>Total Loans</h3>
             <h1><?= $totalLoans ?></h1>
         </div>
@@ -105,6 +112,8 @@ table th{
             <h3>Total Loan Amount</h3>
             <h1>₱<?= number_format($totalAmount, 2) ?></h1>
         </div>
+
+        
 
     </div>
 

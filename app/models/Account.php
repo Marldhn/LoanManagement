@@ -199,11 +199,22 @@ public function getLedger($account_id) {
         FROM profits
         WHERE reference_id = ?
 
+        UNION ALL
+
+        SELECT 
+            'EXPENSE' AS type,
+            NULL AS loan_id,
+            amount,
+            created_at
+        FROM expenses
+        WHERE account_id = ?
+
         ORDER BY created_at DESC
 
     ");
 
     $stmt->execute([
+        $account_id,
         $account_id,
         $account_id,
         $account_id
