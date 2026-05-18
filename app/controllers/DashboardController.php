@@ -13,7 +13,11 @@ class DashboardController {
         $loanModel = new Loan();
         $accountModel = new Account();
         $borrowerModel = new Borrower();
+        $profitModel = new Profit();
         $expenseModel = new Expense();
+
+        $profitMonthly = $profitModel->getMonthlyTotal();
+$expenseMonthly = $expenseModel->getMonthlyTotal();
 
 
         // =========================
@@ -24,6 +28,28 @@ class DashboardController {
         $allLoans = $loanModel->getAll();
         $totalLoans = count($allLoans);
         $totalExpenses = $expenseModel->getTotal();
+
+
+        $loanMonthly = [];
+
+foreach ($allLoans as $loan) {
+
+    $month = date('Y-m', strtotime($loan['created_at']));
+
+    if (!isset($loanMonthly[$month])) {
+        $loanMonthly[$month] = [
+            'released' => 0,
+            'paid' => 0
+        ];
+    }
+
+    $loanMonthly[$month]['released'] += $loan['amount'] ?? 0;
+    $loanMonthly[$month]['paid'] += $loan['total_paid'] ?? 0;
+}
+
+$loanLabels = array_keys($loanMonthly);
+$loanReleased = array_column($loanMonthly, 'released');
+$loanPaid = array_column($loanMonthly, 'paid');
 
         // =========================
         // TOTAL ACCOUNT BALANCE

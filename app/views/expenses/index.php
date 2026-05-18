@@ -2,9 +2,10 @@
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: #f5f6fa;
 }
+
 
 .container {
     padding: 20px;
